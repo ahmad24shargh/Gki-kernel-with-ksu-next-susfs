@@ -175,6 +175,18 @@ jobs:
           # Sync repo and apply patches
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
+          
+          defconfig="/home/runner/work/GKI_KernelSU_SUSFS/GKI_KernelSU_SUSFS/.defconfig"
+          #mkdir -p $CONFIG/out
+          #cp "$defconfig" $CONFIG/out/.config
+          cp "$defconfig" $CONFIG/common/arch/arm64/configs/gki_defconfig
+          #if test -d $CONFIG/common/drivers; then
+             # cd $CONFIG/common/
+              #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/common/out/"
+          #elif test -d $CONFIG/drivers; then
+              #cd $CONFIG
+              #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/out"
+          #fi
 
       - name: Determine the branch for KernelSU & MKSU
         if: ${{ inputs.kernelsu_variant == 'Official' || inputs.kernelsu_variant == 'MKSU' }}
@@ -352,22 +364,12 @@ jobs:
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           
-          export ARCH=arm64
-          defconfig="/home/runner/work/GKI_KernelSU_SUSFS/GKI_KernelSU_SUSFS/.defconfig"
-          mkdir -p $CONFIG/out
-          #cp "$defconfig" $CONFIG/out/.config
-          if test -d $CONFIG/common/drivers; then
-              cd $CONFIG/common/
-              yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/common/out/"
-          elif test -d $CONFIG/drivers; then
-              cd $CONFIG
-              yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/out"
-          fi
+          
           cd "$CONFIG"
           echo "Building the kernel..."
           # if [ -f "build/build.sh" ]; then
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            LTO=${{ inputs.lto_type }} build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
           # else
             #rm -rf ./common/android/abi_gki_protected_exports_*
            # sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
