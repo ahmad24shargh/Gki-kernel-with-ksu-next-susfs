@@ -45,8 +45,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
       - name: Maximize build space
-        if: ${{ inputs.runner == 'ubuntu-22.04' }}
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 8192
@@ -57,8 +57,8 @@ jobs:
           remove-haskell: "true"
           remove-codeql: "true"
 
-      - name: Clean up workspace
-        run: rm -rf ${{ github.workspace }}/*
+      #- name: Clean up workspace
+      #  run: rm -rf ${{ github.workspace }}/*
 
       - name: Set CONFIG Environment Variable
         run: |
