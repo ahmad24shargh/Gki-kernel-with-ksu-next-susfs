@@ -158,7 +158,6 @@ jobs:
         run: |
           echo "Creating folder for configuration: $CONFIG..."
           mkdir -p "$CONFIG"
-          olddir="$(pwd)"
           cd "$CONFIG"
 
           # Initialize and sync kernel source
@@ -182,15 +181,15 @@ jobs:
       
       - name: copy my_defconfig to kernel source dir
         run: |
-          cd "$olddir"
+          defconfig="/home/runner/work/GKI_KernelSU_SUSFS/GKI_KernelSU_SUSFS/my_defconfig"
           mkdir -p ./$CONFIG/out
-          cp ./my_defconfig ./$CONFIG/out/.config
+          cp "$defconfig" ./$CONFIG/out/.config
           if test -d ./$CONFIG/common/drivers; then
-              cp ./my_defconfig ./$CONFIG/common/.config
+              cp "$defconfig" ./$CONFIG/common/.config
               cd ./$CONFIG/common/
               yes "" | make oldconfig O="$CONFIG/common/out/"
           elif test -d ./$CONFIG/drivers; then
-              cp ./my_defconfig ./$CONFIG/.config
+              cp "$defconfig" ./$CONFIG/.config
               cd $CONFIG
               yes "" | make oldconfig O="$CONFIG/out/"
           fi
