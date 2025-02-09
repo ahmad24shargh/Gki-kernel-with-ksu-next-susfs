@@ -374,8 +374,6 @@ jobs:
           echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            # for pixel 6
-            BUILD_CONFIG=common/build.config.gki.aarch64 build/build_abi.sh --update
             LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
