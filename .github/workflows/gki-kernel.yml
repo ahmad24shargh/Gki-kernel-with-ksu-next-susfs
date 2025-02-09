@@ -56,8 +56,8 @@ jobs:
           remove-haskell: "true"
           remove-codeql: "true"
 
-      #- name: Clean up workspace
-      #  run: rm -rf ${{ github.workspace }}/*
+      - name: Clean up workspace
+        run: rm -rf ${{ github.workspace }}/*
       - uses: actions/checkout@v4
       - name: Set CONFIG Environment Variable
         run: |
@@ -183,11 +183,9 @@ jobs:
           mkdir -p $CONFIG/out
           cp "$defconfig" $CONFIG/out/.config
           if test -d $CONFIG/common/drivers; then
-              cp "$defconfig" $CONFIG/common/.config
               cd $CONFIG/common/
               yes "" | make oldconfig O="$CONFIG/common/out/"
           elif test -d $CONFIG/drivers; then
-              cp "$defconfig" $CONFIG/.config
               cd $CONFIG
               yes "" | make oldconfig O="$CONFIG/out/"
           fi
