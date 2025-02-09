@@ -179,11 +179,11 @@ jobs:
           
       - name: copy my_defconfig to kernel source dir
         run: |
-          cp ./my_defconfig ./$CONFIG/out/.config
+          cp /my_defconfig ./$CONFIG/out/.config
           if test -d ./$CONFIG/common/drivers; then
-              cp ./my_defconfig ./$CONFIG/common/.config && yes "" | make oldconfig O="./$CONFIG/out/"
+              cp /my_defconfig ./$CONFIG/common/.config && yes "" | make oldconfig O="./$CONFIG/out/"
           elif test -d ./$CONFIG/drivers; then
-              cp ./my_defconfig ./$CONFIG/.config & yes "" | make oldconfig O="./$CONFIG/out/"
+              cp /my_defconfig ./$CONFIG/.config & yes "" | make oldconfig O="./$CONFIG/out/"
           fi
 
       - name: Determine the branch for KernelSU & MKSU
