@@ -45,6 +45,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
       - name: Maximize build space
         if: ${{ inputs.runner == 'ubuntu-22.04' }}
         uses: easimon/maximize-build-space@master
@@ -157,6 +158,7 @@ jobs:
         run: |
           echo "Creating folder for configuration: $CONFIG..."
           mkdir -p "$CONFIG"
+          olddir="$(pwd)"
           cd "$CONFIG"
 
           # Initialize and sync kernel source
@@ -177,19 +179,20 @@ jobs:
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
           
-      - uses: actions/checkout@v4
+      
       - name: copy my_defconfig to kernel source dir
         run: |
+          cd "$olddir"
           mkdir -p ./$CONFIG/out
           cp ./my_defconfig ./$CONFIG/out/.config
           if test -d ./$CONFIG/common/drivers; then
               cp ./my_defconfig ./$CONFIG/common/.config
               cd ./$CONFIG/common/
-              yes "" | make oldconfig O="../out/"
+              yes "" | make oldconfig O="$CONFIG/common/out/"
           elif test -d ./$CONFIG/drivers; then
               cp ./my_defconfig ./$CONFIG/.config
               cd $CONFIG
-              yes "" | make oldconfig O="./out/"
+              yes "" | make oldconfig O="$CONFIG/out/"
           fi
 
       - name: Determine the branch for KernelSU & MKSU
