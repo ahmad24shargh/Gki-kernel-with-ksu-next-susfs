@@ -175,20 +175,6 @@ jobs:
           # Sync repo and apply patches
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
-          
-      
-      - name: copy my_defconfig to kernel source dir
-        run: |
-          defconfig="/home/runner/work/GKI_KernelSU_SUSFS/GKI_KernelSU_SUSFS/.defconfig"
-          mkdir -p $CONFIG/out
-          cp "$defconfig" $CONFIG/out/.config
-          if test -d $CONFIG/common/drivers; then
-              cd $CONFIG/common/
-              yes "" | make oldconfig O="$CONFIG/common/out/"
-          elif test -d $CONFIG/drivers; then
-              cd $CONFIG
-              yes "" | make oldconfig O="$CONFIG/out/"
-          fi
 
       - name: Determine the branch for KernelSU & MKSU
         if: ${{ inputs.kernelsu_variant == 'Official' || inputs.kernelsu_variant == 'MKSU' }}
@@ -365,19 +351,28 @@ jobs:
       - name: Build the Kernel
         run: |
           echo "Changing to configuration directory: $CONFIG..."
+          
+          export ARCH=arm64
+          defconfig="/home/runner/work/GKI_KernelSU_SUSFS/GKI_KernelSU_SUSFS/.defconfig"
+          mkdir -p $CONFIG/out
+          #cp "$defconfig" $CONFIG/out/.config
+          if test -d $CONFIG/common/drivers; then
+              cd $CONFIG/common/
+              yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/common/out/"
+          elif test -d $CONFIG/drivers; then
+              cd $CONFIG
+              yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/out"
+          fi
           cd "$CONFIG"
-          
-          
-
           echo "Building the kernel..."
-          if [ -f "build/build.sh" ]; then
+          # if [ -f "build/build.sh" ]; then
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
             LTO=${{ inputs.lto_type }} build/build.sh
-          else
-            rm -rf ./common/android/abi_gki_protected_exports_*
-            sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
-            tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
-          fi
+          # else
+            #rm -rf ./common/android/abi_gki_protected_exports_*
+           # sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
+            #tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
+         # fi
 
       - name: Create Bootimgs Folder and Copy Images
         if: ${{ inputs.android_version == 'android12' || inputs.android_version == 'android13' }}
