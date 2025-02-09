@@ -42,7 +42,7 @@ on:
 
 jobs:
   build-kernel-kernelsu-susfs:
-    runs-on: ${{ inputs.runner }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Maximize build space
@@ -181,15 +181,15 @@ jobs:
       - name: copy my_defconfig to kernel source dir
         run: |
           mkdir -p ./$CONFIG/out
-          cd $CONFIG
           cp ./my_defconfig ./$CONFIG/out/.config
           if test -d ./$CONFIG/common/drivers; then
               cp ./my_defconfig ./$CONFIG/common/.config
               cd ./$CONFIG/common/
-              yes "" | make oldconfig O="./$CONFIG/out/"
+              yes "" | make oldconfig O="../out/"
           elif test -d ./$CONFIG/drivers; then
               cp ./my_defconfig ./$CONFIG/.config
-              yes "" | make oldconfig O="./$CONFIG/out/"
+              cd $CONFIG
+              yes "" | make oldconfig O="./out/"
           fi
 
       - name: Determine the branch for KernelSU & MKSU
