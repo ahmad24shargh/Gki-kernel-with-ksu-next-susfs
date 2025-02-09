@@ -3,7 +3,6 @@ name: GKI Kernel Build
 permissions:
   contents: write
   actions: write
-
 on:
   push:
     branches: [ "main" ]
@@ -176,8 +175,8 @@ jobs:
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
           
-    - name: replacing stock gki_defconfig with custom .defconfig
-      run: |
+      - name: replacing stock gki_defconfig with custom .defconfig
+        run: |
           defconfig="/home/runner/work/GKI_KernelSU_SUSFS/GKI_KernelSU_SUSFS/.defconfig"
           #mkdir -p $CONFIG/out
           #cp "$defconfig" $CONFIG/out/.config
