@@ -45,6 +45,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
       - name: Maximize build space
         if: ${{ inputs.runner == 'ubuntu-22.04' }}
         uses: easimon/maximize-build-space@master
@@ -180,7 +181,7 @@ jobs:
       
       - name: copy my_defconfig to kernel source dir
         run: |
-          defconfig="/home/runner/work/GKI_KernelSU_SUSFS/GKI_KernelSU_SUSFS/my_defconfig"
+          defconfig=$(find /home/runner -name 'my_defconfig')
           mkdir -p ./$CONFIG/out
           cp "$defconfig" ./$CONFIG/out/.config
           if test -d ./$CONFIG/common/drivers; then
