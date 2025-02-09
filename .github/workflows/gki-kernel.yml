@@ -171,6 +171,11 @@ jobs:
           # Sync repo and apply patches
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
+          if test -d "$CONFIG/common/drivers"; then
+              cp /my_defconfig $CONFIG/common/.config && yes "" | make oldconfig
+          elif test -d "$GKI_ROOT/drivers"; then
+              cp /my_defconfig $CONFIG/.config & yes "" | make oldconfig
+          fi
 
       - name: Determine the branch for KernelSU & MKSU
         if: ${{ inputs.kernelsu_variant == 'Official' || inputs.kernelsu_variant == 'MKSU' }}
@@ -214,7 +219,7 @@ jobs:
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
-
+          
           echo "Adding KernelSU..."
           curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash $BRANCH
 
