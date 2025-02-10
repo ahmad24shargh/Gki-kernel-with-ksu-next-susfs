@@ -120,7 +120,6 @@ function merge_defconfig_fragments() {
   set -x
 
 }
-append_cmd PRE_DEFCONFIG_CMDS "merge_defconfig_fragments"
 
 function check_merged_defconfig() {
   if ( [ -z "${DEFCONFIG_FRAGMENTS}" ] ||
@@ -141,7 +140,7 @@ function check_merged_defconfig() {
   rm $output
   set -x
 }
-append_cmd POST_DEFCONFIG_CMDS "check_merged_defconfig"
+
 
 # Wrapper function around merge_defconfig_fragment to reduce repeated logic
 # Usage: apply_defconfig_fragment ${KERNEL_DIR}/cuttlefish.fragment cuttlefish-gki_defconfig
