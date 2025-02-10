@@ -195,6 +195,7 @@ jobs:
           cp -a "${repo_path}/arch/arm64/configs/vendor" $CONFIG/common/arch/arm64/configs/
           find ${repo_path}/ -type f -name 'build*' -exec cp {} $CONFIG/common/ \;
           find ${repo_path}/ -type f -name 'modules*' -exec cp {} $CONFIG/common/ \;
+          cp "${repo_path}/arch/arm64/configs/consolidate.fragment" $CONFIG/common/arch/arm64/configs/
           #if test -d $CONFIG/common/drivers; then
              # cd $CONFIG/common/
               #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/common/out/"
