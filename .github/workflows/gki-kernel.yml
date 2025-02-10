@@ -191,6 +191,9 @@ jobs:
           cp -a "${repo_path}/drivers/soc/qcom/hab" $CONFIG/common/drivers/soc/qcom/
           cp "${repo_path}/kernel/irq/Kconfig" $CONFIG/common/kernel/irq/
           cp "${repo_path}/net/wireless/Kconfig" $CONFIG/common/net/wireless/
+          cp -a "${repo_path}/arch/arm64/configs/vendor" $CONFIG/common/arch/arm64/configs/
+          cp "$(find ${repo_path} -name 'build*')" $CONFIG/common/
+          cp "$(find ${repo_path} -name 'modules*')" $CONFIG/common/
           #if test -d $CONFIG/common/drivers; then
              # cd $CONFIG/common/
               #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/common/out/"
@@ -379,7 +382,7 @@ jobs:
           echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.msm.bengal build/build.sh
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
