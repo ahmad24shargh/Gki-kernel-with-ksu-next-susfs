@@ -1,15 +1,15 @@
 config RPROC_SSR_NOTIF_TIMEOUT
 	int "SSR notifier timeout in ms"
-    	default 10000
-        	help
-            	  The amount of time, in milliseconds, that should elapse between
-                  	  the start and end of SSR notifications through the subsystem
-                      	  notifier, before a warning is emitted.
+	default 10000
+	help
+	  The amount of time, in milliseconds, that should elapse between
+	  the start and end of SSR notifications through the subsystem
+	  notifier, before a warning is emitted.
 
-                          config RPROC_SYSMON_NOTIF_TIMEOUT
-                          	int "Sysmon notifications timeout in ms"
-                            	default 10000
-                                	help
-                                    	  The amount of time, in milliseconds, that should elapse between
-                                          	  the start and end of sysmon notifications, before a warning
-                                              	  is emitted.
+config RPROC_SYSMON_NOTIF_TIMEOUT
+	int "Sysmon notifications timeout in ms"
+	default 10000
+	help
+	  The amount of time, in milliseconds, that should elapse between
+	  the start and end of sysmon notifications, before a warning
+	  is emitted.
