@@ -8,11 +8,11 @@ select ARCH_MEMORY_PROBE
 
 config ARCH_MEMORY_PROBE
 	bool "Enable sysfs memory/probe interface"
-    	depends on MEMORY_HOTPLUG
-        	help
-            	  This option enables a sysfs memory/probe interface for testing.
-                  	  See Documentation/admin-guide/mm/memory-hotplug.rst for more information.
-                      	  If you are unsure how to answer this question, answer N.
+	depends on MEMORY_HOTPLUG
+	help
+	  This option enables a sysfs memory/probe interface for testing.
+	  See Documentation/admin-guide/mm/memory-hotplug.rst for more information.
+	  If you are unsure how to answer this question, answer N.
 
-                          	  Add userspace sysfs memory probe interface /sys/device/system/memory/probe.
-                              	  Write physical address to this interface to probe memory.
+	  Add userspace sysfs memory probe interface /sys/device/system/memory/probe.
+	  Write physical address to this interface to probe memory.
