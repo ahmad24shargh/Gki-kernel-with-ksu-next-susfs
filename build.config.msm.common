@@ -35,7 +35,6 @@ function compile_external_dtc() {
     make all install "${DTC_MAKE_ARGS[@]}" NO_PYTHON=1 PREFIX=${COMMON_OUT_DIR}/host
   )
 }
-append_cmd PRE_DEFCONFIG_CMDS 'compile_external_dtc'
 
 ################################################################################
 ## DTB general support
