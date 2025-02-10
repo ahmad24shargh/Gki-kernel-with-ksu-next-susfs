@@ -30,4 +30,4 @@ KERNEL_VENDOR_CMDLINE+=' bootconfig '
 ################################################################################
 ## Inheriting MSM configs
 . ${ROOT_DIR}/${KERNEL_DIR}/build.config.msm.common
-. $${ROOT_DIR}/${KERNEL_DIR}/build.config.msm.gki
+. ${ROOT_DIR}/${KERNEL_DIR}/build.config.msm.gki
