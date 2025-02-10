@@ -46,7 +46,6 @@ jobs:
 
     steps:
       - name: Maximize build space
-        if: ${{ inputs.runner == 'ubuntu-22.04' }}
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 8192
@@ -176,7 +175,7 @@ jobs:
           # Sync repo and apply patches
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
-          
+
       - name: replacing stock gki_defconfig with custom .defconfig and others
         run: |
           repo_path="$(dirname $(find /home/runner -name '.defconfig'))"
@@ -198,8 +197,7 @@ jobs:
           #elif test -d $CONFIG/drivers; then
               #cd $CONFIG
               #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/out"
-          #fi
-
+          #fi          
       - name: Determine the branch for KernelSU & MKSU
         if: ${{ inputs.kernelsu_variant == 'Official' || inputs.kernelsu_variant == 'MKSU' }}
         run: |
@@ -242,7 +240,7 @@ jobs:
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
-          
+
           echo "Adding KernelSU..."
           curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash $BRANCH
 
@@ -376,8 +374,8 @@ jobs:
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
-
           
+
           echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
@@ -429,14 +427,7 @@ jobs:
           mv ../Image ./Image
           zip -r "../$ZIP_NAME" ./*
           rm ./Image
-
-      - name: Run Boot Image ${{ inputs.android_version }} Build Script
-        if: ${{ inputs.android_version == 'android13' || inputs.android_version == 'android14' || inputs.android_version == 'android15' }}
-        run: |
-          cd bootimgs
           
-
-
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
