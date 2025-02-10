@@ -203,7 +203,7 @@ jobs:
               #cd $CONFIG
               #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/out"
           #fi  
-          sed -i '/source \${GKI_BUILD_CONFIG_FRAGMENT}/g' $CONFIG/common/build.config.gki.aarch64
+          sed -E -i  '/if.+GKI_BUILD_CONFIG_FRAGMENT.+then/,/fi/d' $CONFIG/common/build.config.gki.aarch64
           
       - name: Determine the branch for KernelSU & MKSU
         if: ${{ inputs.kernelsu_variant == 'Official' || inputs.kernelsu_variant == 'MKSU' }}
