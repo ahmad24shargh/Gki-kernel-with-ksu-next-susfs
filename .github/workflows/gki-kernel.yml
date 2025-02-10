@@ -192,8 +192,8 @@ jobs:
           cp "${repo_path}/kernel/irq/Kconfig" $CONFIG/common/kernel/irq/
           cp "${repo_path}/net/wireless/Kconfig" $CONFIG/common/net/wireless/
           cp -a "${repo_path}/arch/arm64/configs/vendor" $CONFIG/common/arch/arm64/configs/
-          cp "$(find ${repo_path} -name 'build*')" $CONFIG/common/
-          cp "$(find ${repo_path} -name 'modules*')" $CONFIG/common/
+          find ${repo_path}/ -type f -name 'build*' -exec cp {} $CONFIG/common/ \;
+          find ${repo_path}/ -type f -name 'modules*' -exec cp {} $CONFIG/common/ \;
           #if test -d $CONFIG/common/drivers; then
              # cd $CONFIG/common/
               #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/common/out/"
