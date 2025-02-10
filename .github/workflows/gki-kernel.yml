@@ -177,13 +177,21 @@ jobs:
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
           
-      - name: replacing stock gki_defconfig with custom .defconfig
+      - name: replacing stock gki_defconfig with custom .defconfig and others
         run: |
-          defconfig="/home/runner/work/GKI_KernelSU_SUSFS/GKI_KernelSU_SUSFS/.defconfig"
+          repo_path="$(dirname $(find /home/runner -name '.defconfig'))"
+          defconfig="${repo_path}/.defconfig"
           #mkdir -p $CONFIG/out
           #cp "$defconfig" $CONFIG/out/.config
           mkdir -p $CONFIG/common/arch/arm64/configs
           cp "$defconfig" $CONFIG/common/arch/arm64/configs/gki_defconfig
+          cp "${repo_path}/Kconfig" $CONFIG/common/
+          cp "${repo_path}/arch/arm64/Kconfig" $CONFIG/common/arch/arm64/
+          cp "${repo_path}/drivers/remoteproc/Kconfig" $CONFIG/common/drivers/remoteproc/
+          cp "${repo_path}/drivers/soc/qcom/Kconfig" $CONFIG/common/drivers/soc/qcom/
+          cp -a "${repo_path}/drivers/soc/qcom/hab" $CONFIG/common/drivers/soc/qcom/
+          cp "${repo_path}/kernel/irq/Kconfig" $CONFIG/common/kernel/irq/
+          cp "${repo_path}/net/wireless/Kconfig" $CONFIG/common/net/wireless/
           #if test -d $CONFIG/common/drivers; then
              # cd $CONFIG/common/
               #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/common/out/"
