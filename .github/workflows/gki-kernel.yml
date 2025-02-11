@@ -178,7 +178,7 @@ jobs:
           #cp "${repo_path}/drivers/remoteproc/Kconfig" $CONFIG/common/drivers/remoteproc/
           #cp "${repo_path}/drivers/soc/qcom/Kconfig" $CONFIG/common/drivers/soc/qcom/
           #cp -a "${repo_path}/drivers/soc/qcom/hab" $CONFIG/common/drivers/soc/qcom/
-          cp -a "${repo_path}/drivers/power" $CONFIG/common/drivers/
+          #cp -a "${repo_path}/drivers/power" $CONFIG/common/drivers/
           #cp "${repo_path}/kernel/irq/Kconfig" $CONFIG/common/kernel/irq/
           #cp "${repo_path}/net/wireless/Kconfig" $CONFIG/common/net/wireless/
           #cp -a "${repo_path}/arch/arm64/configs/vendor" $CONFIG/common/arch/arm64/configs/
