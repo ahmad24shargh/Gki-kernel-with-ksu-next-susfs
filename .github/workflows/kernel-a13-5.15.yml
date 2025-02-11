@@ -24,8 +24,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - sub_level: "X"
-            os_patch_level: "lts"
+           - sub_level: "148"
+             os_patch_level: "2024-05"
+          #- sub_level: "X"
+          #  os_patch_level: "lts"
     uses: ./.github/workflows/gki-kernel.yml
     secrets: inherit
     with:
