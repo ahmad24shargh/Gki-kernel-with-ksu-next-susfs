@@ -69,29 +69,17 @@ jobs:
 
           echo "CONFIG set to: $CONFIG"
 
-      #- name: Download prebuilt toolchain
-      #  run: |
-      #    AOSP_MIRROR=https://android.googlesource.com
-      #    BRANCH=main-kernel-build-2024
-      #    git clone $AOSP_MIRROR/kernel/prebuilts/build-tools -b $BRANCH --depth 1 kernel-build-tools
-      #    git clone $AOSP_MIRROR/platform/system/tools/mkbootimg -b $BRANCH --depth 1 mkbootimg
-#
-#          echo "AVBTOOL=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin/avbtool" >> $GITHUB_ENV
-#          echo "MKBOOTIMG=$GITHUB_WORKSPACE/mkbootimg/mkbootimg.py" >> $GITHUB_ENV
-#          echo "UNPACK_BOOTIMG=$GITHUB_WORKSPACE/mkbootimg/unpack_bootimg.py" >> $GITHUB_ENV
-
-      - name: Cache prebuilt toolchain
+      - name: Cache toolchain
         id: cache-toolchain
         uses: actions/cache@v4
         with:
           path: |
             kernel-build-tools
             mkbootimg
-          key: toolchain-${{ runner.os }}-${{ hashFiles('**/workflow.yml') }}
-          restore-keys: |
-            toolchain-${{ runner.os }}-
+          key: toolchain-${{ runner.os }}-v1
 
-      - name: Download prebuilt toolchain (if cache is missing)
+      # Step 2: Download toolchain if cache was not found
+      - name: Download toolchain (if cache not found)
         if: steps.cache-toolchain.outputs.cache-hit != 'true'
         run: |
           AOSP_MIRROR=https://android.googlesource.com
@@ -179,23 +167,23 @@ jobs:
       - name: replacing stock gki_defconfig with custom .defconfig and others
         run: |
           repo_path="$(dirname $(find /home/runner -name '.defconfig'))"
-          ROOT_DIR=$CONFIG
+          #ROOT_DIR=$CONFIG
           defconfig="${repo_path}/.defconfig"
           #mkdir -p $CONFIG/out
           #cp "$defconfig" $CONFIG/out/.config
-          mkdir -p $CONFIG/common/arch/arm64/configs
+          #mkdir -p $CONFIG/common/arch/arm64/configs
           cp "$defconfig" $CONFIG/common/arch/arm64/configs/gki_defconfig
           cp "${repo_path}/Kconfig" $CONFIG/common/
           cp "${repo_path}/arch/arm64/Kconfig" $CONFIG/common/arch/arm64/
           cp "${repo_path}/drivers/remoteproc/Kconfig" $CONFIG/common/drivers/remoteproc/
           cp "${repo_path}/drivers/soc/qcom/Kconfig" $CONFIG/common/drivers/soc/qcom/
           cp -a "${repo_path}/drivers/soc/qcom/hab" $CONFIG/common/drivers/soc/qcom/
+          cp -a "${repo_path}/drivers/power/supply/qcom" $CONFIG/common/drivers/power/supply/
           cp "${repo_path}/kernel/irq/Kconfig" $CONFIG/common/kernel/irq/
           cp "${repo_path}/net/wireless/Kconfig" $CONFIG/common/net/wireless/
           cp -a "${repo_path}/arch/arm64/configs/vendor" $CONFIG/common/arch/arm64/configs/
-          find ${repo_path}/ -type f -name 'build*' -exec cp {} $CONFIG/common/ \;
-          find ${repo_path}/ -type f -name 'modules*' -exec cp {} $CONFIG/common/ \;
-          cp "${repo_path}/arch/arm64/configs/consolidate.fragment" $CONFIG/common/arch/arm64/configs/
+          #find ${repo_path}/ -type f -name 'build*' -exec cp {} $CONFIG/common/ \;
+          #find ${repo_path}/ -type f -name 'modules*' -exec cp {} $CONFIG/common/ \;
           #if test -d $CONFIG/common/drivers; then
              # cd $CONFIG/common/
               #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/common/out/"
@@ -203,8 +191,7 @@ jobs:
               #cd $CONFIG
               #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/out"
           #fi  
-          sed -E -i  '/if.+GKI_BUILD_CONFIG_FRAGMENT.+then/,/fi/d' $CONFIG/common/build.config.gki.aarch64
-          
+          #sed -E -i  '/if.+GKI_BUILD_CONFIG_FRAGMENT.+then/,/fi/d' $CONFIG/common/build.config.gki.aarch64          
       - name: Determine the branch for KernelSU & MKSU
         if: ${{ inputs.kernelsu_variant == 'Official' || inputs.kernelsu_variant == 'MKSU' }}
         run: |
@@ -381,12 +368,16 @@ jobs:
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
-          
+
+          #sed -i '$s|echo "\$res"|echo "\$res-Wild+"|' ./common/scripts/setlocalversion
+
+          # Run perl command to modify UTS_VERSION
+          #perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Sat Apr 20 04:20:00 UTC 2024"}' ./common/scripts/mkcompile_h
 
           echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.msm.bengal build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
@@ -435,9 +426,26 @@ jobs:
           zip -r "../$ZIP_NAME" ./*
           rm ./Image
           
+      
+          
+
+      - name: Run Boot Image ${{ inputs.android_version }} Build Script
+        if: ${{ inputs.android_version == 'android13' || inputs.android_version == 'android14' || inputs.android_version == 'android15' }}
+        run: |
+          cd bootimgs
+
+          echo "Building boot.img"
+          $MKBOOTIMG --header_version 4 --kernel Image --output boot.img
+          $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
+          cp ./boot.img ../${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot.img
+
+  
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: kernel-${{ env.CONFIG }}
           path: |
             *.zip
+            *.img
+            
