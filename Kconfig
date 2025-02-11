@@ -19,7 +19,7 @@ source "net/Kconfig"
 
 source "drivers/Kconfig"
 
-source "drivers/soc/qcom/hab/Kconfig"
+#source "drivers/soc/qcom/hab/Kconfig"
 
 source "fs/Kconfig"
 
