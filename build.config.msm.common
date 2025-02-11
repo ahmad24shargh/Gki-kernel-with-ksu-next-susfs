@@ -10,7 +10,8 @@
 #     All files in this list are sourced
 
 CONFIG_DIR=arch/${ARCH}/configs
-
+DT_OVERLAY_SUPPORT=0
+BUILD_VENDOR_DLKM=0
 BRANCH=msm-kernel
 CONFIG_TARGET=msm.${MSM_ARCH}
 
@@ -42,7 +43,7 @@ DTB_DIR=vendor/qcom
 DTC_OVERLAY_TEST_EXT=ufdt_apply_overlay
 # Force /__symbols__ generation for all DTB[O]s
 DTC_FLAGS="-@"
-MAKE_GOALS+=" dtbs"
+MAKE_GOALS=" dtbs"
 
 function install_dtbs() {
   local INSTALL_DTBS_PATH="${COMMON_OUT_DIR}/dtb_staging"
