@@ -1,6 +1,0 @@
-#add this to ./Kconfig
-
-source "drivers/soc/qcom/hab/Kconfig"
-
-copy drivers/soc/qcom/hub
-from your source to kernel source tree
