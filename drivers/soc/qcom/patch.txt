@@ -1,7 +1,0 @@
-config PDR_INDICATION_NOTIF_TIMEOUT
-	int "Pdr notifications timeout in ms"
-	default 3000
-	help
-	  The amount of time, in milliseconds, that should elapse between
-	  the start and end of notifications, before a warning
-	  is emitted.
