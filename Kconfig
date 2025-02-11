@@ -21,6 +21,8 @@ source "drivers/Kconfig"
 
 source "drivers/soc/qcom/hab/Kconfig"
 
+source "drivers/power/supply/qcom/Kconfig"
+
 source "fs/Kconfig"
 
 source "security/Kconfig"
