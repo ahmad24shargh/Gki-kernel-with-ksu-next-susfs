@@ -10,8 +10,6 @@
 #     All files in this list are sourced
 
 CONFIG_DIR=arch/${ARCH}/configs
-DT_OVERLAY_SUPPORT=0
-BUILD_VENDOR_DLKM=0
 BRANCH=msm-kernel
 CONFIG_TARGET=msm.${MSM_ARCH}
 
