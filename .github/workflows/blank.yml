@@ -27,8 +27,14 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
-          echo "default PATH : $PATH"
-          echo -e "all environment configs:\n $(export)"
+          if type clang;then
+            which clang
+            clang --version
+          fi
+          if type ld.bfd;then
+            which ld.bfd
+          fi
+          echo -e "list installed packages:\n $(snap list)"
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
