@@ -27,13 +27,9 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
-          if type clang;then
-            which clang
-            clang --version
-          fi
-          if type ld.bfd;then
-            which ld.bfd
-          fi
+          sudo apt-get --assume-yes update
+          sudo apt-get --assume-yes upgrade
+          sudo apt-get --assume-yes install dwarves
           echo -e "list installed packages:\n $(apt list --installed)"
 
       # Runs a set of commands using the runners shell
