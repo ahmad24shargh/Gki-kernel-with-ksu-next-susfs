@@ -31,7 +31,7 @@ jobs:
           #sudo apt-get --assume-yes upgrade
           #sudo apt-get --assume-yes install dwarves
           #echo -e "list installed packages:\n $(apt list --installed)"
-          sudo ls $(dirname $(which clang))
+          sud find /usr -type f -executable 2>/dev/null | grep -E '(aarch64|arm64).+'
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
