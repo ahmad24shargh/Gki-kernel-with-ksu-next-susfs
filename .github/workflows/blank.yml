@@ -31,7 +31,7 @@ jobs:
           #sudo apt-get --assume-yes upgrade
           #sudo apt-get --assume-yes install dwarves
           #echo -e "list installed packages:\n $(apt list --installed)"
-          sudo find /usr -type f -executable 2>/dev/null | grep -E '/bin/(aarch64|arm64).+'
+          sudo find /usr -type f -name 'avbtool' 2>/dev/null
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
