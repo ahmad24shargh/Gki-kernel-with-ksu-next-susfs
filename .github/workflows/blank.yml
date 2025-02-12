@@ -27,10 +27,11 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
-          sudo apt-get --assume-yes update
-          sudo apt-get --assume-yes upgrade
-          sudo apt-get --assume-yes install dwarves
-          echo -e "list installed packages:\n $(apt list --installed)"
+          #sudo apt-get --assume-yes update
+          #sudo apt-get --assume-yes upgrade
+          #sudo apt-get --assume-yes install dwarves
+          #echo -e "list installed packages:\n $(apt list --installed)"
+          sudo ls $(dirname $(which clang))
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
