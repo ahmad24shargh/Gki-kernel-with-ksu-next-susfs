@@ -382,19 +382,17 @@ jobs:
           if [ -f "build/_setup_env.sh" ]; then
             sed -i "s#export PATH#export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"#g" build/_setup_env.sh
             echo "The file build/_setup_env.sh existed and was patched."
-            #echo $(grep -E 'export PATH.+' build/_setup_env.sh)
+            echo $(grep -E 'export PATH.+' build/_setup_env.sh)
           else
             export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"
           fi
           CC="aarch64-linux-android$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')-clang"
-          echo -e "CC = ${CC}\nPATH :\necho $PATH"
-          if ! type $CC;then
-            echo "$CC Not found in the PATH !!!"
-          fi
+          LD=lld
+          echo -e "CC = ${CC}\nLD = $LD"
           
           if [ -f "build/build.sh" ]; then
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 CC=${CC} build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 CC=${CC} LD=${LD} build/build.sh
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
