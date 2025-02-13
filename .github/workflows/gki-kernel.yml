@@ -393,6 +393,12 @@ jobs:
             #sed -E -i "s|([[:space:]]*)CC=clang|CC=${CC}|g" build/build.sh
             #sed -E -i "s|([[:space:]]*)LD=ld.lld|LD=${LD}|g" build/build.sh
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
+            cat build/build.sh
+            [ -f "build/_setup_env.sh" ] && cat build/_setup_env.sh
+            [ -f "build/build_utils.sh" ] && cat build/build_utils.sh
+            [ -f "build/gettop.sh" ] && cat build/gettop.sh
+            realpath build/build.sh
+            ls -l $(dirname $(realpath build/build.sh))
             export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
             export TARGET=aarch64-linux-android
             export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
