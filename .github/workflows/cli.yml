@@ -31,4 +31,4 @@ jobs:
           #sudo apt-get --assume-yes upgrade
           #sudo apt-get --assume-yes install dwarves
           #echo -e "list installed packages:\n $(apt list --installed)"
-          #sudo find $GITHUB_WORKSPACE/kernel-build-tools -type d -name '*ndk*' 2>/dev/null
+          #sudo find /home/runner -type d -name '*ndk*' 2>/dev/null
