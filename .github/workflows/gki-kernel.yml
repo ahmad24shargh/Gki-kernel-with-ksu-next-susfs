@@ -83,8 +83,7 @@ jobs:
         if: steps.cache-toolchain.outputs.cache-hit != 'true'
         run: |
           AOSP_MIRROR=https://android.googlesource.com
-          #BRANCH=main-kernel-build-2024
-          BRANCH=master
+          BRANCH=main-kernel-build-2024
           git clone $AOSP_MIRROR/kernel/prebuilts/build-tools -b $BRANCH --depth 1 kernel-build-tools
           git clone $AOSP_MIRROR/platform/system/tools/mkbootimg -b $BRANCH --depth 1 mkbootimg
 
@@ -377,24 +376,24 @@ jobs:
 
           echo "Building the kernel..."
 
-          sudo apt-get --assume-yes update
-          sudo apt-get --assume-yes --only-upgrade install linux-tools-common linux-libc-dev  base-files  dwarves
-          if [ -f "build/_setup_env.sh" ]; then
-            sed -i "s#export PATH#export PATH;export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"#g" build/_setup_env.sh
-            echo "The file build/_setup_env.sh existed and was patched."
-            echo $(grep -E 'export PATH.+' build/_setup_env.sh)
-          else
-            export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"
-          fi
-          CC="aarch64-linux-android$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')-clang"
-          LD=lld
-          echo -e "CC = ${CC}\nLD = $LD"
+          #sudo apt-get --assume-yes update
+          #sudo apt-get --assume-yes --only-upgrade install linux-tools-common linux-libc-dev  base-files  dwarves
+          #if [ -f "build/_setup_env.sh" ]; then
+            #sed -i "s#export PATH#export PATH;export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"#g" build/_setup_env.sh
+            #echo "The file build/_setup_env.sh existed and was patched."
+            #echo $(grep -E 'export PATH.+' build/_setup_env.sh)
+          #else
+            #export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"
+          #fi
+          #CC="aarch64-linux-android$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')-clang"
+          #LD=lld
+          #echo -e "CC = ${CC}\nLD = $LD"
           
           if [ -f "build/build.sh" ]; then
-            sed -E -i "s|([[:space:]]*)CC=clang|CC=${CC}|g" build/build.sh
-            sed -E -i "s|([[:space:]]*)LD=ld.lld|LD=${LD}|g" build/build.sh
+            #sed -E -i "s|([[:space:]]*)CC=clang|CC=${CC}|g" build/build.sh
+            #sed -E -i "s|([[:space:]]*)LD=ld.lld|LD=${LD}|g" build/build.sh
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 CC=${CC} LD=${LD} build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64  build/build.sh
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
