@@ -393,7 +393,17 @@ jobs:
             #sed -E -i "s|([[:space:]]*)CC=clang|CC=${CC}|g" build/build.sh
             #sed -E -i "s|([[:space:]]*)LD=ld.lld|LD=${LD}|g" build/build.sh
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64  build/build.sh
+            export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
+            export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
+            export TARGET=aarch64-linux-android
+            export AR=$TOOLCHAIN/bin/llvm-ar
+            export CC="$TOOLCHAIN/bin/clang --target=$TARGET$API"
+            export AS=$CC
+            export CXX="$TOOLCHAIN/bin/clang++ --target=$TARGET$API"
+            export LD=$TOOLCHAIN/bin/lld
+            export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+            export STRIP=$TOOLCHAIN/bin/llvm-strip
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 CC=${CC} LD=${LD} build/build.sh
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
