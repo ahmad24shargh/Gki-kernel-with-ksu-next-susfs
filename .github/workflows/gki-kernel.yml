@@ -399,7 +399,10 @@ jobs:
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
             tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
           fi
-
+      - name: "ahmad24shargh : debug code"
+        run: |
+          find $GITHUB_WORKSPACE/kernel-build-tools/ -type d -name '*ndk*' 2>/dev/null
+          find $GITHUB_WORKSPACE/kernel-build-tools/ -type f -executable -exec sh -c "file {} | grep -Pi ': elf (32|64)-bit' > /dev/null" \; -print | cut -sd / -f 4- | awk '$0="./"$0'
       - name: Create Bootimgs Folder and Copy Images
         if: ${{ inputs.android_version == 'android12' || inputs.android_version == 'android13' }}
         run: |
