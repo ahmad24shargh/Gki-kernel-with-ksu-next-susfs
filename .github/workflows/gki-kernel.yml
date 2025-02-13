@@ -393,17 +393,11 @@ jobs:
             #sed -E -i "s|([[:space:]]*)CC=clang|CC=${CC}|g" build/build.sh
             #sed -E -i "s|([[:space:]]*)LD=ld.lld|LD=${LD}|g" build/build.sh
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
             export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
             export TARGET=aarch64-linux-android
-            export AR=$TOOLCHAIN/bin/llvm-ar
-            export CC="$TOOLCHAIN/bin/clang --target=$TARGET$API"
-            export AS=$CC
-            export CXX="$TOOLCHAIN/bin/clang++ --target=$TARGET$API"
-            export LD=$TOOLCHAIN/bin/lld
-            export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
-            export STRIP=$TOOLCHAIN/bin/llvm-strip
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 CC=${CC} LD=${LD} build/build.sh
+            export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
+            sed -E -i 's|^[[:space:]]+STRIP=llvm-strip$|AR=${TOOLCHAIN}/bin/llvm-ar;[ ! -f ${AR} ] \&\& AR=llvm-ar\\\nCC="$TOOLCHAIN/bin/clang --target=${TARGET}${API}";[ ! -f ${CC} ] \&\& CC=clang\\\nAS=${TOOLCHAIN}/bin/llvm-as;[ ! -f ${AS} ] \&\& AS=llvm-as\\\nCXX="$TOOLCHAIN/bin/clang++ --target=$TARGET$API";[ ! -f ${CXX} ] \&\& CXX=clang++\\\nHOSTCC=${CC}\\\nHOSTCXX=${CXX}\\\nLD=${TOOLCHAIN}/bin/lld;[ ! -f ${LD} ] \&\& LD=ld.lld\\\nRANLIB=${TOOLCHAIN}/bin/llvm-ranlib;[ ! -f ${RANLIB} ] \&\& RANLIB=llvm-ranlib\\\nSTRIP=${TOOLCHAIN}/bin/llvm-strip;[ ! -f ${STRIP} ] \&\& STRIP=llvm-strip\\\nNM=${TOOLCHAIN}/bin/llvm-nm;[ ! -f ${NM} ] \&\& NM=llvm-nm\\\nOBJCOPY=${TOOLCHAIN}/bin/llvm-objcopy;[ ! -f ${OBJCOPY} ] \&\& OBJCOPY=llvm-objcopy\\\nOBJDUMP=${TOOLCHAIN}/bin/llvm-objdump;[ ! -f ${OBJDUMP} ] \&\& OBJDUMP=llvm-objdump\\\nREADELF=${TOOLCHAIN}/bin/llvm-readelf;[ ! -f ${READELF} ] \&\& READELF=llvm-readelf\\\nOBJSIZE=${TOOLCHAIN}/bin/llvm-size;[ ! -f ${OBJSIZE} ] \&\& OBJSIZE=llvm-size|g' build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
