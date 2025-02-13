@@ -391,8 +391,8 @@ jobs:
           echo -e "CC = ${CC}\nLD = $LD"
           
           if [ -f "build/build.sh" ]; then
-            sed -E -i "s#^CC=clang$#CC=${CC}#g" build/build.sh
-            sed -E -i "s#^LD=ld.lld$#LD=${LD}#g" build/build.sh
+            sed -E -i "s|([[:space:]]*)CC=clang|CC=${CC}|g" build/build.sh
+            sed -E -i "s|([[:space:]]*)LD=ld.lld|LD=${LD}|g" build/build.sh
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
             LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 CC=${CC} LD=${LD} build/build.sh
           else
