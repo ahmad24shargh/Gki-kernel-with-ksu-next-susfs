@@ -31,4 +31,4 @@ jobs:
           #sudo apt-get --assume-yes upgrade
           #sudo apt-get --assume-yes install dwarves
           #echo -e "list installed packages:\n $(apt list --installed)"
-          #sudo find /home/runner -type d -name '*ndk*' 2>/dev/null
+          sudo find /usr/local/lib/android/sdk/ndk/27.2.12479018/ -type f 2>/dev/null
