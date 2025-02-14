@@ -377,8 +377,8 @@ jobs:
 
           echo "Building the kernel..."
 
-          #sudo apt-get --assume-yes update
-          #sudo apt-get --assume-yes --only-upgrade install linux-tools-common linux-libc-dev  base-files  dwarves
+          sudo apt-get --assume-yes update
+          sudo apt-get --assume-yes --only-upgrade install linux-tools-common linux-libc-dev  base-files  dwarves yaml
           if [ -f "build/_setup_env.sh" ]; then
             sed -i "s|export PATH|export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"|g" build/_setup_env.sh
             echo "The file build/_setup_env.sh existed and was patched."
