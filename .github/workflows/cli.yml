@@ -29,12 +29,12 @@ jobs:
         run: |
           #sudo apt-get --assume-yes update
           #sudo apt-get --assume-yes upgrade
-          sudo apt-get --assume-yes install dwarves libyaml-dev
+          #sudo apt-get --assume-yes install dwarves libyaml-dev
           #echo -e "list installed packages:\n $(apt list --installed)"
-          sudo find /usr -regextype sed -regex ".*/.*yaml\.(so|a|h)"
+          #sudo find /usr -regextype sed -regex ".*/.*yaml\.(so|a|h)"
           #sudo find /usr/ -name '*yaml*' 2>/dev/null | grep -v share
           echo
           echo
           echo
           export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
-          clang -print-search-dirs -print-effective-triple
+          sudo find $(clang -print-search-dirs | tr -d ' =' | sed 's/:/\n/g' | grep -E '/lib/clang/[0-9]+' | head -n 1) -type d
