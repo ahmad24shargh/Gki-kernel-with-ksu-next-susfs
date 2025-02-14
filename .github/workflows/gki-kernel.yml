@@ -389,7 +389,7 @@ jobs:
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           export TARGET=aarch64-linux-android
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
-          #CC="aarch64-linux-android${API}"
+          CC="aarch64-linux-android${API} -I /usr/include -L /usr/lib"
           #LD=lld
           #echo -e "CC = ${CC}\nLD = $LD"
           
@@ -415,7 +415,7 @@ jobs:
             
             #sed -E -i 's|^[[:space:]]+STRIP=llvm-strip$|AR=${TOOLCHAIN}/bin/llvm-ar;[ ! -f ${AR} ] \&\& AR=llvm-ar\\\nCC="$TOOLCHAIN/bin/clang --target=${TARGET}${API}";[ ! -f ${CC} ] \&\& CC=clang\\\nAS=${TOOLCHAIN}/bin/llvm-as;[ ! -f ${AS} ] \&\& AS=llvm-as\\\nCXX="$TOOLCHAIN/bin/clang++ --target=$TARGET$API";[ ! -f ${CXX} ] \&\& CXX=clang++\\\nHOSTCC=${CC}\\\nHOSTCXX=${CXX}\\\nLD=${TOOLCHAIN}/bin/lld;[ ! -f ${LD} ] \&\& LD=ld.lld\\\nRANLIB=${TOOLCHAIN}/bin/llvm-ranlib;[ ! -f ${RANLIB} ] \&\& RANLIB=llvm-ranlib\\\nSTRIP=${TOOLCHAIN}/bin/llvm-strip;[ ! -f ${STRIP} ] \&\& STRIP=llvm-strip\\\nNM=${TOOLCHAIN}/bin/llvm-nm;[ ! -f ${NM} ] \&\& NM=llvm-nm\\\nOBJCOPY=${TOOLCHAIN}/bin/llvm-objcopy;[ ! -f ${OBJCOPY} ] \&\& OBJCOPY=llvm-objcopy\\\nOBJDUMP=${TOOLCHAIN}/bin/llvm-objdump;[ ! -f ${OBJDUMP} ] \&\& OBJDUMP=llvm-objdump\\\nREADELF=${TOOLCHAIN}/bin/llvm-readelf;[ ! -f ${READELF} ] \&\& READELF=llvm-readelf\\\nOBJSIZE=${TOOLCHAIN}/bin/llvm-size;[ ! -f ${OBJSIZE} ] \&\& OBJSIZE=llvm-size|g' build/build.sh
             sed -E -i 's|.*export ROOT_DIR=.+dirname.+$|export ROOT_DIR=$($(find ${BUILD_SCRIPT_DIR} -type f -name "gettop.sh"))|g' build/build.sh
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 CC=${CC} build/build.sh
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
