@@ -31,4 +31,4 @@ jobs:
           #sudo apt-get --assume-yes upgrade
           #sudo apt-get --assume-yes install dwarves
           #echo -e "list installed packages:\n $(apt list --installed)"
-          sudo find /usr/local/lib/android/sdk/ndk/27.2.12479018/ -type f -name '*ld*' 2>/dev/null
+          sudo find ${ANDROID_NDK_LATEST_HOME}/ -type d 2>/dev/null
