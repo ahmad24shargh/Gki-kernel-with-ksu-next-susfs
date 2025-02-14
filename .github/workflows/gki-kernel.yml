@@ -52,7 +52,7 @@ jobs:
           temp-reserve-mb: 2048
           swap-size-mb: 8192
           remove-dotnet: "true"
-          remove-android: "true"
+          remove-android: "false"
           remove-haskell: "true"
           remove-codeql: "true"
 
@@ -369,8 +369,8 @@ jobs:
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
           mkdir -p ndk
-          sudo cp -dR --no-preserve=mode,ownership $(sudo realpath ${ANDROID_NDK_LATEST_HOME}) ndk/
-          ndk_home="${CONFIG}/ndk/$(echo ${ANDROID_NDK_LATEST_HOME} | rev | cut -d '/' -f 1 | rev)"
+          sudo cp -dR --no-preserve=mode,ownership ${ANDROID_NDK_LATEST_HOME}/* ndk/
+          ndk_home="${CONFIG}/ndk"
 
           #sed -i '$s|echo "\$res"|echo "\$res-Wild+"|' ./common/scripts/setlocalversion
 
