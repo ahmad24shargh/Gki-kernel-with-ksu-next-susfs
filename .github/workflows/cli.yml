@@ -31,7 +31,10 @@ jobs:
           #sudo apt-get --assume-yes upgrade
           sudo apt-get --assume-yes install dwarves libyaml-dev
           #echo -e "list installed packages:\n $(apt list --installed)"
-          sudo find /usr/ -name '*yaml*' 2>/dev/null | grep -v share
-          
+          sudo find /usr -regextype sed -regex ".*/.*yaml\.(so|a|h)"
+          #sudo find /usr/ -name '*yaml*' 2>/dev/null | grep -v share
+          echo
+          echo
+          echo
           export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
           clang -print-search-dirs -print-effective-triple
