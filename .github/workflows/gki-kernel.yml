@@ -405,15 +405,15 @@ jobs:
             export BUILD_SCRIPT_DIR=$(dirname $(realpath build/build.sh))
             ndk_prebuilt_dir="${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64"
 
-            sudo ! test -e ${TOOLCHAIN}/bin/ld.lld && sudo ln -s ${TOOLCHAIN}/bin/lld ${TOOLCHAIN}/bin/ld.lld
-            sudo ! test -e ${ndk_prebuilt_dir}/lib/yasm.a && sudo ln -s ${ndk_prebuilt_dir}/lib/libyasm.a ${ndk_prebuilt_dir}/lib/yasm.a
-            sudo ! test -e ${ndk_prebuilt_dir}/include/yasm-stdint.h && sudo ln -s ${ndk_prebuilt_dir}/include/libyasm-stdint.h ${ndk_prebuilt_dir}/include/yasm-stdint.h
-            sudo ! test -e ${ndk_prebuilt_dir}/include/yasm.h && sudo ln -s ${ndk_prebuilt_dir}/include/libyasm.h ${ndk_prebuilt_dir}/include/yasm.h
-            sudo ! test -L ${ndk_prebuilt_dir}/include/yasm && sudo ln -s ${ndk_prebuilt_dir}/include/libyasm ${ndk_prebuilt_dir}/include/yasm
+            sudo test -e ${TOOLCHAIN}/bin/ld.lld || sudo ln -s ${TOOLCHAIN}/bin/lld ${TOOLCHAIN}/bin/ld.lld
+            sudo test -e ${ndk_prebuilt_dir}/lib/yasm.a || sudo ln -s ${ndk_prebuilt_dir}/lib/libyasm.a ${ndk_prebuilt_dir}/lib/yasm.a
+            sudo test -e ${ndk_prebuilt_dir}/include/yasm-stdint.h || sudo ln -s ${ndk_prebuilt_dir}/include/libyasm-stdint.h ${ndk_prebuilt_dir}/include/yasm-stdint.h
+            sudo test -e ${ndk_prebuilt_dir}/include/yasm.h || sudo ln -s ${ndk_prebuilt_dir}/include/libyasm.h ${ndk_prebuilt_dir}/include/yasm.h
+            sudo test -L ${ndk_prebuilt_dir}/include/yasm || sudo ln -s ${ndk_prebuilt_dir}/include/libyasm ${ndk_prebuilt_dir}/include/yasm
 
             sudo find ${ndk_prebuilt_dir}/ -type f
 
-            Copy headers and ...
+            #Copy headers and ...
             sudo cp /usr/include/yaml.h $(clang -print-search-dirs | tr -d ' =' | sed 's/:/\n/g' | grep -E '/lib/clang/[0-9]+' | head -n 1)/include/
             
             sed -E -i 's|^[[:space:]]+STRIP=llvm-strip$|AR=${TOOLCHAIN}/bin/llvm-ar;[ ! -f ${AR} ] \&\& AR=llvm-ar\\\nCC="$TOOLCHAIN/bin/clang --target=${TARGET}${API} -I/usr/include";[ ! -f ${CC} ] \&\& CC=clang\\\nAS=${TOOLCHAIN}/bin/llvm-as;[ ! -f ${AS} ] \&\& AS=llvm-as\\\nCXX="$TOOLCHAIN/bin/clang++ --target=$TARGET$API -I/usr/include";[ ! -f ${CXX} ] \&\& CXX=clang++\\\nHOSTCC=${CC}\\\nHOSTCXX=${CXX}\\\nLD=${TOOLCHAIN}/bin/lld;[ ! -f ${LD} ] \&\& LD=ld.lld\\\nRANLIB=${TOOLCHAIN}/bin/llvm-ranlib;[ ! -f ${RANLIB} ] \&\& RANLIB=llvm-ranlib\\\nSTRIP=${TOOLCHAIN}/bin/llvm-strip;[ ! -f ${STRIP} ] \&\& STRIP=llvm-strip\\\nNM=${TOOLCHAIN}/bin/llvm-nm;[ ! -f ${NM} ] \&\& NM=llvm-nm\\\nOBJCOPY=${TOOLCHAIN}/bin/llvm-objcopy;[ ! -f ${OBJCOPY} ] \&\& OBJCOPY=llvm-objcopy\\\nOBJDUMP=${TOOLCHAIN}/bin/llvm-objdump;[ ! -f ${OBJDUMP} ] \&\& OBJDUMP=llvm-objdump\\\nREADELF=${TOOLCHAIN}/bin/llvm-readelf;[ ! -f ${READELF} ] \&\& READELF=llvm-readelf\\\nOBJSIZE=${TOOLCHAIN}/bin/llvm-size;[ ! -f ${OBJSIZE} ] \&\& OBJSIZE=llvm-size|g' build/build.sh
