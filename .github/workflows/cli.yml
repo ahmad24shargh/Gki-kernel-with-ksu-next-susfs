@@ -29,6 +29,6 @@ jobs:
         run: |
           #sudo apt-get --assume-yes update
           #sudo apt-get --assume-yes upgrade
-          #sudo apt-get --assume-yes install dwarves
+          sudo apt-get --assume-yes install dwarves libyaml-dev
           #echo -e "list installed packages:\n $(apt list --installed)"
-          sudo find ${ANDROID_NDK_LATEST_HOME}/ -name '*yasm*' 2>/dev/null
+          sudo find /usr/ -name '*yaml*' 2>/dev/null | grep -v man
