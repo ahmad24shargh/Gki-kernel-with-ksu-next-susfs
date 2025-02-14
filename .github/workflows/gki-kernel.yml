@@ -369,7 +369,7 @@ jobs:
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
           mkdir -p ndk
-          sudo cp -dR --no-preserve=mode,ownership "${ANDROID_NDK_LATEST_HOME}/*" ndk/
+          sudo cp -dR --no-preserve=mode,ownership ${ANDROID_NDK_LATEST_HOME}/* ndk/
           ndk_home="${CONFIG}/ndk"
 
           #sed -i '$s|echo "\$res"|echo "\$res-Wild+"|' ./common/scripts/setlocalversion
