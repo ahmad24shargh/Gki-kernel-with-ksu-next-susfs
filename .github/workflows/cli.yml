@@ -34,14 +34,14 @@ jobs:
 
           echo "CONFIG set to: $CONFIG"
 
-      - name: Cache toolchain
-        id: cache-toolchain
-        uses: actions/cache@v4
-        with:
-          path: |
-            kernel-build-tools
-            mkbootimg
-          key: toolchain-${{ runner.os }}-v1
+      #- name: Cache toolchain
+       # id: cache-toolchain
+      #  uses: actions/cache@v4
+     #   with:
+       #   path: |
+      #      kernel-build-tools
+       #     mkbootimg
+       #   key: toolchain-${{ runner.os }}-v1
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
@@ -54,5 +54,5 @@ jobs:
           echo
           echo
           echo
-          export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
-          sudo find $GITHUB_WORKSPACE/kernel-build-tools/linux-x86/ -type d
+          #export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
+          #sudo find $GITHUB_WORKSPACE/kernel-build-tools/linux-x86/ -type d
