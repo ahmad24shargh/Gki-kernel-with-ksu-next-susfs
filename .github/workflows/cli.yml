@@ -37,4 +37,4 @@ jobs:
           echo
           echo
           export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
-          sudo find $(clang -print-search-dirs | tr -d ' =' | sed 's/:/\n/g' | grep -E '/lib/clang/[0-9]+' | head -n 1) -type d
+          sudo find $GITHUB_WORKSPACE/kernel-build-tools/linux-x86/ -type d
