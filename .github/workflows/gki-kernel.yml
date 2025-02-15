@@ -425,7 +425,7 @@ jobs:
             
             sed -E -i 's|.*export ROOT_DIR=.+dirname.+$|export ROOT_DIR=$($(find ${BUILD_SCRIPT_DIR} -type f -name "gettop.sh"))|g' build/build.sh
             #cat build/build.sh
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 LD=${LD} CC=${CC} build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64  build/build.sh LD="${LD}" CC="${CC}"
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
