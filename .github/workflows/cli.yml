@@ -54,5 +54,7 @@ jobs:
           echo
           echo
           echo
-          #export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
+          export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
+          clang --version
+          clang -print-target-triple
           #sudo find $GITHUB_WORKSPACE/kernel-build-tools/linux-x86/ -type d
