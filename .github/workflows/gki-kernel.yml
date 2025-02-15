@@ -389,8 +389,8 @@ jobs:
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           export TARGET=aarch64-linux-android
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
-          export CC="aarch64-linux-android${API} -v -I/usr/include"
-          export LD=lld
+          export CC="${TOOLCHAIN}/bin/aarch64-linux-android${API} -v -I/usr/include"
+          export LD="${TOOLCHAIN}/bin/lld"
           #echo -e "CC = ${CC}\nLD = $LD"
           
           if [ -f "build/build.sh" ]; then
