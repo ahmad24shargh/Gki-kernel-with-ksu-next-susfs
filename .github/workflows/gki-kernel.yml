@@ -380,7 +380,8 @@ jobs:
           export TARGET=aarch64-linux-android
           export LIBRARY_PATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/lib64
           export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
-          export CC="clang --target=${TARGET}${API}"
+          My_Args=" -mtune=cortex-a73 -mcpu=cortex-a53 "
+          export CC="clang --target=${TARGET}${API} ${My_Args}"
           
           echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
