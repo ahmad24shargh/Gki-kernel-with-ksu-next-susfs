@@ -380,17 +380,17 @@ jobs:
           #sudo apt-get --assume-yes update
           sudo apt-get --assume-yes install dwarves
           if [ -f "build/_setup_env.sh" ]; then
-            sed -i "s|export PATH|export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"|g" build/_setup_env.sh
+            #sed -i "s|export PATH|export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"|g" build/_setup_env.sh
             echo "The file build/_setup_env.sh existed and was patched."
             #echo $(grep -E 'export PATH.+' build/_setup_env.sh)
           else
-            export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
+            #export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
           fi
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           export TARGET=aarch64-linux-android
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
-          CC="aarch64-linux-android${API} -v -I/usr/include"
-          LD=lld
+          export CC="aarch64-linux-android${API} -v -I/usr/include"
+          export LD=lld
           #echo -e "CC = ${CC}\nLD = $LD"
           
           if [ -f "build/build.sh" ]; then
@@ -416,7 +416,7 @@ jobs:
             #Copy headers and ...
             sudo cp /usr/include/yaml.h $(clang -print-search-dirs | tr -d ' =' | sed 's/:/\n/g' | grep -E '/lib/clang/[0-9]+' | head -n 1)/include/
             
-             
+            sed -E -i 's|source .+_setup_env.sh.+|source "${ROOT_DIR}/build/_setup_env.sh";export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"|g' build/build.sh
             sed -E -i 's|^[[:space:]]*HOSTCC=clang|HOSTCC=clang --target=${TARGET}${API} -v -I/usr/include|g' build/build.sh
             sed -E -i 's|^[[:space:]]*HOSTCXX=clang\+\+|HOSTCXX=clang++ --target=$TARGET$API -v -I/usr/include|g' build/build.sh
             sed -E -i 's|^[[:space:]]*CC=clang|CC=clang --target=${TARGET}${API} -v -I/usr/include|g' build/build.sh
@@ -433,7 +433,6 @@ jobs:
           fi
       - name: "ahmad24shargh : debug code"
         run: |
-          find $GITHUB_WORKSPACE/kernel-build-tools/ -type d -name '*ndk*' 2>/dev/null
           find $GITHUB_WORKSPACE/kernel-build-tools/ -type f -executable -exec sh -c "file {} | grep -Pi ': elf (32|64)-bit' > /dev/null" \; -print | cut -sd / -f 4- | awk '$0="./"$0'
       - name: Create Bootimgs Folder and Copy Images
         if: ${{ inputs.android_version == 'android12' || inputs.android_version == 'android13' }}
