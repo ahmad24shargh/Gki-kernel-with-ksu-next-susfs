@@ -377,8 +377,8 @@ jobs:
 
           echo "Building the kernel..."
 
-          sudo apt-get --assume-yes update
-          sudo apt-get --assume-yes --only-upgrade install linux-tools-common linux-libc-dev  base-files  dwarves libyaml-dev
+          #sudo apt-get --assume-yes update
+          sudo apt-get --assume-yes install dwarves
           if [ -f "build/_setup_env.sh" ]; then
             sed -i "s|export PATH|export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"|g" build/_setup_env.sh
             echo "The file build/_setup_env.sh existed and was patched."
@@ -389,8 +389,8 @@ jobs:
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           export TARGET=aarch64-linux-android
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
-          #CC="aarch64-linux-android${API} -I /usr/include"
-          #LD=lld
+          CC="aarch64-linux-android${API} -v -I/usr/include"
+          LD=lld
           #echo -e "CC = ${CC}\nLD = $LD"
           
           if [ -f "build/build.sh" ]; then
@@ -411,7 +411,7 @@ jobs:
             sudo test -e ${ndk_prebuilt_dir}/include/yasm.h || sudo ln -s ${ndk_prebuilt_dir}/include/libyasm.h ${ndk_prebuilt_dir}/include/yasm.h
             sudo test -L ${ndk_prebuilt_dir}/include/yasm || sudo ln -s ${ndk_prebuilt_dir}/include/libyasm ${ndk_prebuilt_dir}/include/yasm
 
-            sudo find ${ndk_prebuilt_dir}/ -type f
+            #sudo find ${ndk_prebuilt_dir}/ -type f
 
             #Copy headers and ...
             sudo cp /usr/include/yaml.h $(clang -print-search-dirs | tr -d ' =' | sed 's/:/\n/g' | grep -E '/lib/clang/[0-9]+' | head -n 1)/include/
@@ -424,8 +424,8 @@ jobs:
             sed -E -i 's|^[[:space:]]*CXX=clang\+\+|CXX=clang++ --target=$TARGET$API -v -I/usr/include|g' build/build.sh
             
             sed -E -i 's|.*export ROOT_DIR=.+dirname.+$|export ROOT_DIR=$($(find ${BUILD_SCRIPT_DIR} -type f -name "gettop.sh"))|g' build/build.sh
-            cat build/build.sh
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+            #cat build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 LD=${LD} CC=${CC} build/build.sh
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
