@@ -389,8 +389,8 @@ jobs:
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           export TARGET=aarch64-linux-android
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
-          export CC="aarch64-linux-android${API}-clang -v -I/usr/include"
-          export LD="${TOOLCHAIN}/bin/lld"
+          export CC="aarch64-linux-android31-clang -v -I/usr/include"
+          #export LD="${TOOLCHAIN}/bin/lld"
           #echo -e "CC = ${CC}\nLD = $LD"
           
           if [ -f "build/build.sh" ]; then
@@ -425,7 +425,7 @@ jobs:
             
             sed -E -i 's|.*export ROOT_DIR=.+dirname.+$|export ROOT_DIR=$($(find ${BUILD_SCRIPT_DIR} -type f -name "gettop.sh"))|g' build/build.sh
             #cat build/build.sh
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64  build/build.sh LD="${LD}" CC="${CC}"
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64  build/build.sh CC="${CC}"
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
