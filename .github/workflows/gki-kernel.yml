@@ -380,16 +380,18 @@ jobs:
           #sudo apt-get --assume-yes update
           sudo apt-get --assume-yes install dwarves
           #if [ -f "build/_setup_env.sh" ]; then
-            #sed -i "s|export PATH|export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"|g" build/_setup_env.sh
+            #sed -i "s|export PATH|export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"|g" build/_setup_env.sh
             #echo "The file build/_setup_env.sh existed and was patched."
             #echo $(grep -E 'export PATH.+' build/_setup_env.sh)
           #else
-            export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
+            export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
           #fi
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           export TARGET=aarch64-linux-android
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
-          export CC="aarch64-linux-android31-clang -v -I/usr/include"
+          export LIBRARY_PATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/lib64
+          export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
+          export CC="aarch64-linux-android31-clang -v"
           #export LD="${TOOLCHAIN}/bin/lld"
           #echo -e "CC = ${CC}\nLD = $LD"
           
