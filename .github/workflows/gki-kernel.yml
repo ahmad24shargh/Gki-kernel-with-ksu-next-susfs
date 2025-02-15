@@ -1,8 +1,7 @@
 name: GKI Kernel Build
-
 permissions:
-  contents: write
-  actions: write
+  contents: write  # Allow writing to repository contents (for pushing tags)
+  actions: write   # Allows triggering actions
 
 on:
   push:
@@ -42,10 +41,11 @@ on:
 
 jobs:
   build-kernel-kernelsu-susfs:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner }}
 
     steps:
       - name: Maximize build space
+        #if: ${{ inputs.runner == 'ubuntu-22.04' }}
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 8192
@@ -163,7 +163,6 @@ jobs:
           # Sync repo and apply patches
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
-
       - name: replacing stock gki_defconfig with custom .defconfig and others
         run: |
           repo_path="$(dirname $(find /home/runner -name '.defconfig'))"
@@ -192,6 +191,7 @@ jobs:
               #yes "" | make gki_defconfig $defconfig ARCH=arm64 O="$CONFIG/out"
           #fi  
           #sed -E -i  '/if.+GKI_BUILD_CONFIG_FRAGMENT.+then/,/fi/d' $CONFIG/common/build.config.gki.aarch64          
+ 
       - name: Determine the branch for KernelSU & MKSU
         if: ${{ inputs.kernelsu_variant == 'Official' || inputs.kernelsu_variant == 'MKSU' }}
         run: |
@@ -360,6 +360,7 @@ jobs:
 
           # Add additional tmpfs config setting
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
@@ -368,79 +369,38 @@ jobs:
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
-          
 
           #sed -i '$s|echo "\$res"|echo "\$res-Wild+"|' ./common/scripts/setlocalversion
 
           # Run perl command to modify UTS_VERSION
           #perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Sat Apr 20 04:20:00 UTC 2024"}' ./common/scripts/mkcompile_h
-
-          echo "Building the kernel..."
-
-          #sudo apt-get --assume-yes update
-          sudo apt-get --assume-yes install dwarves
-          #if [ -f "build/_setup_env.sh" ]; then
-            #sed -i "s|export PATH|export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"|g" build/_setup_env.sh
-            #echo "The file build/_setup_env.sh existed and was patched."
-            #echo $(grep -E 'export PATH.+' build/_setup_env.sh)
-          #else
-            #export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
-          #fi
+          
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
           export TARGET=aarch64-linux-android
           export LIBRARY_PATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/lib64
           export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
-          export CC="clang --target=${TARGET}${API} -v"
-          #export LD="${TOOLCHAIN}/bin/lld"
-          #echo -e "CC = ${CC}\nLD = $LD"
+          export CC="clang --target=${TARGET}${API}"
           
+          echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
-            #sed -E -i "s|([[:space:]]*)CC=clang|CC=${CC}|g" build/build.sh
-            #sed -E -i "s|([[:space:]]*)LD=ld.lld|LD=${LD}|g" build/build.sh
-            sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            #cat build/build.sh
-            #[ -f "build/_setup_env.sh" ] && cat build/_setup_env.sh
-            #[ -f "build/build_utils.sh" ] && cat build/build_utils.sh
-            #[ -f "build/gettop.sh" ] && cat build/gettop.sh
-            #realpath build/build.sh
+          
             export BUILD_SCRIPT_DIR=$(dirname $(realpath build/build.sh))
-            ndk_prebuilt_dir="${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64"
-
-            #sudo test -e ${TOOLCHAIN}/bin/ld.lld || sudo ln -s ${TOOLCHAIN}/bin/lld ${TOOLCHAIN}/bin/ld.lld
-            #sudo test -e ${ndk_prebuilt_dir}/lib/yasm.a || sudo ln -s ${ndk_prebuilt_dir}/lib/libyasm.a ${ndk_prebuilt_dir}/lib/yasm.a
-            #sudo test -e ${ndk_prebuilt_dir}/include/yasm-stdint.h || sudo ln -s ${ndk_prebuilt_dir}/include/libyasm-stdint.h ${ndk_prebuilt_dir}/include/yasm-stdint.h
-            #sudo test -e ${ndk_prebuilt_dir}/include/yasm.h || sudo ln -s ${ndk_prebuilt_dir}/include/libyasm.h ${ndk_prebuilt_dir}/include/yasm.h
-            #sudo test -L ${ndk_prebuilt_dir}/include/yasm || sudo ln -s ${ndk_prebuilt_dir}/include/libyasm ${ndk_prebuilt_dir}/include/yasm
-
-            #sudo find ${ndk_prebuilt_dir}/ -type f
-
-            #Copy headers and ...
-            #sudo cp /usr/include/yaml.h $(clang -print-search-dirs | tr -d ' =' | sed 's/:/\n/g' | grep -E '/lib/clang/[0-9]+' | head -n 1)/include/
-            
             sed -E -i 's|source .+_setup_env.sh.+|source "${ROOT_DIR}/build/_setup_env.sh";export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"|g' build/build.sh
-            sed -E -i 's|^[[:space:]]*HOSTCC=clang|HOSTCC=clang --target=${TARGET}${API} -I/usr/include|g' build/build.sh
-            sed -E -i 's|^[[:space:]]*HOSTCXX=clang\+\+|HOSTCXX=clang++ --target=$TARGET$API -I/usr/include|g' build/build.sh
-            sed -E -i 's|^[[:space:]]*CC=clang|CC=clang --target=${TARGET}${API} -I/usr/include|g' build/build.sh
-            sed -E -i 's|^[[:space:]]*LD=ld\.lld|LD=lld|g' build/build.sh
-            sed -E -i 's|^[[:space:]]*CXX=clang\+\+|CXX=clang++ --target=$TARGET$API -I/usr/include|g' build/build.sh
-            
             sed -E -i 's|.*export ROOT_DIR=.+dirname.+$|export ROOT_DIR=$($(find ${BUILD_SCRIPT_DIR} -type f -name "gettop.sh"))|g' build/build.sh
-            #cat build/build.sh
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64  build/build.sh CC="${CC}"
+
+            sed -i 's/-dirty//' ./common/scripts/setlocalversion
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}"
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
             tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
           fi
-      - name: "ahmad24shargh : debug code"
-        run: |
-          find $GITHUB_WORKSPACE/kernel-build-tools/ -type f -executable -exec sh -c "file {} | grep -Pi ': elf (32|64)-bit' > /dev/null" \; -print | cut -sd / -f 4- | awk '$0="./"$0'
+
       - name: Create Bootimgs Folder and Copy Images
         if: ${{ inputs.android_version == 'android12' || inputs.android_version == 'android13' }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
-          #cd $CONFIG
           mkdir bootimgs
 
           echo "Creating bootimgs folder and copying images..."
@@ -450,8 +410,22 @@ jobs:
           cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image.lz4 ./
 
           # Create gzip of the Image file
-          gzip -n -k -f -9 ./Image > ./Image.gz
+          #gzip -n -k -f -9 ./Image > ./Image.gz
 
+      - name: Create Bootimgs Folder and Copy Images
+        if: ${{ inputs.android_version == 'android14' || inputs.android_version == 'android15' }}
+        run: |
+          echo "Changing to configuration directory: $CONFIG..."
+          mkdir bootimgs
+
+          echo "Creating bootimgs folder and copying images..."
+          cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image ./bootimgs
+          cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image.lz4 ./bootimgs
+          cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image ./
+          cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image.lz4 ./
+
+          # Create gzip of the Image file
+          #gzip -n -k -f -9 ./Image > ./Image.gz
 
       - name: Create ZIP Files for Different Formats
         run: |
@@ -464,21 +438,92 @@ jobs:
           mv ../Image ./Image
           zip -r "../$ZIP_NAME" ./*
           rm ./Image
-          
-      
-          
+
+          #ZIP_NAME="${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-AnyKernel3-lz4.zip"
+          #echo "Creating zip file: $ZIP_NAME..."
+          #mv ../Image.lz4 ./Image.lz4
+          #zip -r "../$ZIP_NAME" ./*
+          #rm ./Image.lz4
+
+          #ZIP_NAME="${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-AnyKernel3-gz.zip"
+          #echo "Creating zip file: $ZIP_NAME..."
+          #mv ../Image.gz ./Image.gz
+          #zip -r "../$ZIP_NAME" ./*
+          #rm ./Image.gz
+
+      - name: Run Boot Image ${{ inputs.android_version }} Build Script
+        #if: ${{ inputs.android_version == 'android12' }}
+        if: false
+        run: |
+          echo "Changing to configuration directory: $CONFIG..."
+          cd bootimgs
+
+          GKI_URL=https://dl.google.com/android/gki/gki-certified-boot-android12-5.10-"${{ inputs.os_patch_level }}"_r1.zip
+          FALLBACK_URL=https://dl.google.com/android/gki/gki-certified-boot-android12-5.10-2023-01_r1.zip
+
+          # Check if the GKI URL is available
+          echo "Checking if GKI kernel URL is reachable: $GKI_URL"
+          status=$(curl -sL -w "%{http_code}" "$GKI_URL" -o /dev/null)
+
+          if [ "$status" = "200" ]; then
+              echo "[+] Downloading from GKI_URL"
+              curl -Lo gki-kernel.zip "$GKI_URL"
+          else
+              echo "[+] $GKI_URL not found, using $FALLBACK_URL"
+              curl -Lo gki-kernel.zip "$FALLBACK_URL"
+          fi
+
+          # Unzip the downloaded kernel and remove the zip
+          echo "Unzipping the downloaded kernel..."
+          unzip gki-kernel.zip && rm gki-kernel.zip
+
+          echo "Unpacking boot.img..."
+          FULL_PATH=$(pwd)/boot-5.10.img
+          echo "Unpacking using: $FULL_PATH"
+
+          echo "Running unpack_bootimg.py..."
+          $UNPACK_BOOTIMG --boot_img="$FULL_PATH"
+
+          echo "Building Image.gz"
+          gzip -n -k -f -9 ./Image > ./Image.gz
+
+          echo "Building boot.img"
+          $MKBOOTIMG --header_version 4 --kernel Image --output boot.img --ramdisk out/ramdisk --os_version 12.0.0 --os_patch_level "${{ inputs.os_patch_level }}"
+          $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
+          cp ./boot.img ../${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot.img
+
+          echo "Building boot-gz.img"
+          $MKBOOTIMG --header_version 4 --kernel Image.gz --output boot-gz.img --ramdisk out/ramdisk --os_version 12.0.0 --os_patch_level "${{ inputs.os_patch_level }}"
+          $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-gz.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
+          cp ./boot-gz.img ../${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot-gz.img
+
+          echo "Building boot-lz4.img"
+          $MKBOOTIMG --header_version 4 --kernel Image.lz4 --output boot-lz4.img --ramdisk out/ramdisk --os_version 12.0.0 --os_patch_level "${{ inputs.os_patch_level }}"
+          $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-lz4.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
+          cp ./boot-lz4.img ../${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot-lz4.img
 
       - name: Run Boot Image ${{ inputs.android_version }} Build Script
         if: ${{ inputs.android_version == 'android13' || inputs.android_version == 'android14' || inputs.android_version == 'android15' }}
         run: |
           cd bootimgs
 
+          echo "Building Image.gz"
+          gzip -n -k -f -9 ./Image > ./Image.gz
+
           echo "Building boot.img"
           $MKBOOTIMG --header_version 4 --kernel Image --output boot.img
           $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
           cp ./boot.img ../${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot.img
 
-  
+          echo "Building boot-gz.img"
+          $MKBOOTIMG --header_version 4 --kernel Image.gz --output boot-gz.img
+          $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-gz.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
+          cp ./boot-gz.img ../${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot-gz.img
+
+          echo "Building boot-lz4.img"
+          $MKBOOTIMG --header_version 4 --kernel Image.lz4 --output boot-lz4.img
+          $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-lz4.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
+          cp ./boot-lz4.img ../${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot-lz4.img
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
@@ -487,4 +532,3 @@ jobs:
           path: |
             *.zip
             *.img
-            
