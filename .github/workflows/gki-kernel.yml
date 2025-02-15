@@ -387,11 +387,11 @@ jobs:
             #export PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}"
           #fi
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
-          export TARGET=aarch64-linux-android
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
+          export TARGET=aarch64-linux-android
           export LIBRARY_PATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/lib64
           export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
-          export CC="aarch64-linux-android${API}-clang"
+          export CC="clang --target=${TARGET}${API} -v"
           #export LD="${TOOLCHAIN}/bin/lld"
           #echo -e "CC = ${CC}\nLD = $LD"
           
