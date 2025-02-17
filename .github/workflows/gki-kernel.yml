@@ -386,21 +386,21 @@ jobs:
           export LIBRARY_PATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/lib64
           export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
-          My_Args=" -mtune=cortex-a73 -mcpu=cortex-a53 "
+          My_Args=' -mtune=cortex-a73 -mcpu=cortex-a53 '
 
           #for ndk
           #export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           #export TARGET=aarch64-linux-android
           #export CC="clang --target=${TARGET}${API} ${My_Args}"
           #export My_PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
-          #export MY_BUILD_ARGS="CC=\"${CC}\" "
+          #export MY_BUILD_ARGS='CC="${CC}" '
           
           #for arm-toolchain
           export TOOLCHAIN=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu
           export CC="aarch64-none-linux-gnu-gcc ${My_Args}"
           [ ! -e ${TOOLCHAIN}/aarch64-none-linux-gnu/bin/ld.lld ] && ln -s ${TOOLCHAIN}/aarch64-none-linux-gnu/bin/ld ${TOOLCHAIN}/aarch64-none-linux-gnu/bin/ld.lld
           export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
-          export MY_BUILD_ARGS="CC=\"${CC}\" CROSS_COMPILE=aarch64-none-linux-gnu- "
+          export MY_BUILD_ARGS='CC="${CC}" CROSS_COMPILE=aarch64-none-linux-gnu- '
           
           echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
