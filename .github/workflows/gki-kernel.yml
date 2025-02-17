@@ -391,15 +391,16 @@ jobs:
           #for ndk
           #export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           #export TARGET=aarch64-linux-android
-          #export CC="clang --target=${TARGET}${API}"
+          #export CC="clang --target=${TARGET}${API} ${My_Args}"
           #export My_PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
-          #export MY_BUILD_ARGS="CC=\"${CC}\" ${My_Args}"
+          #export MY_BUILD_ARGS="CC=\"${CC}\" "
           
           #for arm-toolchain
           export TOOLCHAIN=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu
           export CC="aarch64-none-linux-gnu-gcc ${My_Args}"
+          [ ! -e ${TOOLCHAIN}/aarch64-none-linux-gnu/bin/ld.lld ] && ln -s ${TOOLCHAIN}/aarch64-none-linux-gnu/bin/ld ${TOOLCHAIN}/aarch64-none-linux-gnu/bin/ld.lld
           export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
-          export MY_BUILD_ARGS="CC=\"${CC}\" ${My_Args} CROSS_COMPILE=aarch64-none-linux-gnu- "
+          export MY_BUILD_ARGS="CC=\"${CC}\" CROSS_COMPILE=aarch64-none-linux-gnu- "
           
           echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
@@ -409,7 +410,7 @@ jobs:
             sed -E -i 's|.*export ROOT_DIR=.+dirname.+$|export ROOT_DIR=$($(find ${BUILD_SCRIPT_DIR} -type f -name "gettop.sh"))|g' build/build.sh
 
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh "${MY_BUILD_ARGS}"
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh ${MY_BUILD_ARGS}
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
