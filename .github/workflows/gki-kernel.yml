@@ -419,8 +419,40 @@ jobs:
             #LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}"
 
             #for arm toolchain
-            sed -E -i 's|# Copyright.+|export HOSTCC=aarch64-none-linux-gnu-gcc\\\nexport HOSTCXX=aarch64-none-linux-gnu-c++\\\nexport CC=aarch64-none-linux-gnu-gcc\\\nexport LD=aarch64-none-linux-gnu-ld\\\nexport CXX=aarch64-none-linux-gnu-c++\\\nexport AR=aarch64-none-linux-gnu-ar\\\nexport AS=aarch64-none-linux-gnu-as\\\nexport RANLIB=aarch64-none-linux-gnu-ranlib\\\nexport STRIP=aarch64-none-linux-gnu-strip\\\nexport NM=aarch64-none-linux-gnu-nm\\\nexport OBJCOPY=aarch64-none-linux-gnu-objcopy\\\nexport OBJDUMP=aarch64-none-linux-gnu-objdump\\\nexport READELF=aarch64-none-linux-gnu-readelf\\\nexport OBJSIZE=aarch64-none-linux-gnu-size;|g' build/build.sh
-            sed -E -i 's|TOOL_ARGS=\(\)|TOOL_ARGS=();unset LLVM;|g' build/build.sh
+            #sed -E -i 's|# Copyright.+|export HOSTCC=aarch64-none-linux-gnu-gcc\\\nexport HOSTCXX=aarch64-none-linux-gnu-c++\\\nexport CC=aarch64-none-linux-gnu-gcc\\\nexport LD=aarch64-none-linux-gnu-ld\\\nexport CXX=aarch64-none-linux-gnu-c++\\\nexport AR=aarch64-none-linux-gnu-ar\\\nexport AS=aarch64-none-linux-gnu-as\\\nexport RANLIB=aarch64-none-linux-gnu-ranlib\\\nexport STRIP=aarch64-none-linux-gnu-strip\\\nexport NM=aarch64-none-linux-gnu-nm\\\nexport OBJCOPY=aarch64-none-linux-gnu-objcopy\\\nexport OBJDUMP=aarch64-none-linux-gnu-objdump\\\nexport READELF=aarch64-none-linux-gnu-readelf\\\nexport OBJSIZE=aarch64-none-linux-gnu-size;|g' build/build.sh
+            #sed -E -i 's|TOOL_ARGS=\(\)|TOOL_ARGS=();unset LLVM;|g' build/build.sh
+            for file in $(sudo find ${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin -type f -name 'aarch64-none-linux-gnu-*');
+            do
+	            name_of_tool=$(echo ${file} | rev | cut -d'/' -f 1 | rev | cut -d'-' -f5-)
+	            case ${name_of_tool} in
+		            "gcc")
+			            link_name="clang"
+			            ;;
+
+		            "c++")
+			            link_name="clang++"
+			            ;;
+               
+		            "ld")
+                  link_name="ld.lld"
+			            ;;
+               
+		            "ld.bfd")
+			            link_name="ld.bfd"
+			            ;;
+               
+			          "ld.gold")
+			            link_name="ld.gold"
+			            ;;
+               
+		            *)
+			            link_name="llvm-${name_of_tool}"
+			            ;;
+	            esac
+	            if  sudo test ! -e ${link_name} ;then
+		            sudo ln -s $file ${link_name}
+	            fi
+            done
             LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
