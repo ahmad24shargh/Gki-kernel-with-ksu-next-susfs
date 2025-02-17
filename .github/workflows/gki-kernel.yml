@@ -411,7 +411,7 @@ jobs:
             sed -i 's/-dirty//' ./common/scripts/setlocalversion
 
             #for ndk
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}"
+            #LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}"
 
             #for arm toolchain
             LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LLVM=0 CROSS_COMPILE=aarch64-none-linux-gnu-
