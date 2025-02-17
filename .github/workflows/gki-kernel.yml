@@ -397,6 +397,7 @@ jobs:
           #for arm-toolchain
           export TOOLCHAIN=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu
           export CC="aarch64-none-linux-gnu-gcc ${My_Args}"
+          export LD="aarch64-none-linux-gnu-ld"
           [ ! -e ${TOOLCHAIN}/aarch64-none-linux-gnu/bin/ld.lld ] && ln -s ${TOOLCHAIN}/aarch64-none-linux-gnu/bin/ld ${TOOLCHAIN}/aarch64-none-linux-gnu/bin/ld.lld
           export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
           
@@ -414,22 +415,22 @@ jobs:
             #LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}"
 
             #for arm toolchain
-            sed -E -i 's|[[:space:]]*HOSTCC=clang|HOSTCC=aarch64-none-linux-gnu-gcc|g' build/build.sh
-            sed -E -i 's|[[:space:]]*HOSTCXX=clang\+\+|HOSTCXX=aarch64-none-linux-gnu-c++|g' build/build.sh
-            sed -E -i 's|[[:space:]]*CC=clang|CC=aarch64-none-linux-gnu-gcc|g' build/build.sh
-            sed -E -i 's|[[:space:]]*LD=ld\.lld|LD=aarch64-none-linux-gnu-ld|g' build/build.sh
-            sed -E -i 's|[[:space:]]*CXX=clang\+\+|CXX=aarch64-none-linux-gnu-c++|g' build/build.sh
-            sed -E -i 's|[[:space:]]*AR=llvm-ar|AR=aarch64-none-linux-gnu-ar|g' build/build.sh
-            sed -E -i 's|[[:space:]]*AS=llvm-as|AS=aarch64-none-linux-gnu-as|g' build/build.sh
-            sed -E -i 's|[[:space:]]*RANLIB=llvm-ranlib|RANLIB=aarch64-none-linux-gnu-ranlib|g' build/build.sh
-            sed -E -i 's|[[:space:]]*STRIP=llvm-strip|STRIP=aarch64-none-linux-gnu-strip|g' build/build.sh
-            sed -E -i 's|[[:space:]]*NM=llvm-nm|NM=aarch64-none-linux-gnu-nm|g' build/build.sh
-            sed -E -i 's|[[:space:]]*OBJCOPY=llvm-objcopy|OBJCOPY=aarch64-none-linux-gnu-objcopy|g' build/build.sh
-            sed -E -i 's|[[:space:]]*OBJDUMP=llvm-objdump|OBJDUMP=aarch64-none-linux-gnu-objdump|g' build/build.sh
-            sed -E -i 's|[[:space:]]*READELF=llvm-readelf|READELF=aarch64-none-linux-gnu-readelf|g' build/build.sh
-            sed -E -i 's|[[:space:]]*OBJSIZE=llvm-size|OBJSIZE=aarch64-none-linux-gnu-size|g' build/build.sh
-            sed -E -i 's|[[:space:]]*TOOL_ARGS.+LLVM.1.+|TOOL_ARGS+=("LLVM=0")|g' build/build.sh
-            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" CROSS_COMPILE=aarch64-none-linux-gnu-
+            sed -E -i --debug 's|[[:space:]]*HOSTCC=clang|HOSTCC=aarch64-none-linux-gnu-gcc|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*HOSTCXX=clang\+\+|HOSTCXX=aarch64-none-linux-gnu-c++|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*CC=clang|CC=aarch64-none-linux-gnu-gcc|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*LD=ld\.lld|LD=aarch64-none-linux-gnu-ld|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*CXX=clang\+\+|CXX=aarch64-none-linux-gnu-c++|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*AR=llvm-ar|AR=aarch64-none-linux-gnu-ar|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*AS=llvm-as|AS=aarch64-none-linux-gnu-as|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*RANLIB=llvm-ranlib|RANLIB=aarch64-none-linux-gnu-ranlib|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*STRIP=llvm-strip|STRIP=aarch64-none-linux-gnu-strip|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*NM=llvm-nm|NM=aarch64-none-linux-gnu-nm|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*OBJCOPY=llvm-objcopy|OBJCOPY=aarch64-none-linux-gnu-objcopy|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*OBJDUMP=llvm-objdump|OBJDUMP=aarch64-none-linux-gnu-objdump|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*READELF=llvm-readelf|READELF=aarch64-none-linux-gnu-readelf|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*OBJSIZE=llvm-size|OBJSIZE=aarch64-none-linux-gnu-size|g' build/build.sh
+            sed -E -i --debug 's|[[:space:]]*TOOL_ARGS.+LLVM.1.+|TOOL_ARGS+=("LLVM=0")|g' build/build.sh
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
