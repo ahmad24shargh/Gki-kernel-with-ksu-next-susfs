@@ -400,6 +400,7 @@ jobs:
           export LD="aarch64-none-linux-gnu-ld"
           sudo test ! -e ${TOOLCHAIN}/bin/ld.lld && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ld ${TOOLCHAIN}/bin/ld.lld;sudo test ! -e ${TOOLCHAIN}/bin/ld && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ld ${TOOLCHAIN}/bin/ld;sudo test ! -e ${TOOLCHAIN}/bin/ld.bfd && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ld.bfd ${TOOLCHAIN}/bin/ld.bfd;sudo test ! -e ${TOOLCHAIN}/bin/ld.gold && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ld.gold ${TOOLCHAIN}/bin/ld.gold;sudo test ! -e ${TOOLCHAIN}/bin/gcc  && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-gcc ${TOOLCHAIN}/bin/gcc;sudo test ! -e "${TOOLCHAIN}/bin/g++"  && sudo ln -s "${TOOLCHAIN}/bin/aarch64-none-linux-gnu-g++" "${TOOLCHAIN}/bin/g++"
           export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
+          aarch64-none-linux-gnu-gcc --version
           
 
 
@@ -425,7 +426,7 @@ jobs:
             #sed -E -i '/sysroot_flags\+=.+/d' build/_setup_env.sh
             sed -E -i '/.*export HOST.*/d' build/_setup_env.sh
             sed -i 's|LLVM|LLLL|g' common/Makefile
-            LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
+            LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh ARCH=arm64 CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
