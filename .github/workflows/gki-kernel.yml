@@ -421,7 +421,7 @@ jobs:
             #for arm toolchain
             sed -E -i 's|# Copyright.+|export HOSTCC=gcc\\\nexport HOSTCXX=g++\\\nexport CC=gcc\\\nexport LD=aarch64-none-linux-gnu-ld\\\nexport CXX=g++\\\nexport AR=aarch64-none-linux-gnu-ar\\\nexport AS=aarch64-none-linux-gnu-as\\\nexport RANLIB=aarch64-none-linux-gnu-ranlib\\\nexport STRIP=aarch64-none-linux-gnu-strip\\\nexport NM=aarch64-none-linux-gnu-nm\\\nexport OBJCOPY=aarch64-none-linux-gnu-objcopy\\\nexport OBJDUMP=aarch64-none-linux-gnu-objdump\\\nexport READELF=aarch64-none-linux-gnu-readelf\\\nexport OBJSIZE=aarch64-none-linux-gnu-size;|g' build/build.sh
             sed -E -i 's|TOOL_ARGS=\(\)|TOOL_ARGS=();unset LLVM;unset LLVM_IAS;|g' build/build.sh
-            sed -i 's|LLVM|LLLL|g' $CONFIG/common/Makefile
+            sed -i 's|LLVM|LLLL|g' common/Makefile
             LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
