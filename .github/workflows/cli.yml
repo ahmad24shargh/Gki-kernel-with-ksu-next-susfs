@@ -94,7 +94,7 @@ jobs:
           echo
           which gcc
           which as
-          which ld
+          which lld
           which ld.bfd
           #aarch64-none-linux-gnu-gcc -print-search-dirs | sed 's|:|\n\n|g'
           #clang --version
