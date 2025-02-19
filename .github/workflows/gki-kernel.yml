@@ -396,7 +396,7 @@ jobs:
           
           #for arm-toolchain
           TOOLCHAIN=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu
-          CC="aarch64-none-linux-gnu-gcc -v ${My_Args}"
+          CC="aarch64-none-linux-gnu-gcc ${My_Args} --with-sysroot=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/"
           LD="aarch64-none-linux-gnu-ld"
           #sudo test ! -e ${TOOLCHAIN}/bin/ld.lld && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ld ${TOOLCHAIN}/bin/ld.lld;sudo test ! -e ${TOOLCHAIN}/bin/ld && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ld ${TOOLCHAIN}/bin/ld;sudo test ! -e ${TOOLCHAIN}/bin/ld.bfd && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ld.bfd ${TOOLCHAIN}/bin/ld.bfd;sudo test ! -e ${TOOLCHAIN}/bin/ld.gold && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ld.gold ${TOOLCHAIN}/bin/ld.gold;sudo test ! -e ${TOOLCHAIN}/bin/gcc  && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-gcc ${TOOLCHAIN}/bin/gcc;sudo test ! -e "${TOOLCHAIN}/bin/g++"  && sudo ln -s "${TOOLCHAIN}/bin/aarch64-none-linux-gnu-g++" "${TOOLCHAIN}/bin/g++"
           export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
