@@ -430,8 +430,8 @@ jobs:
             sed -E -i '/.+--rtlib=compiler-rt.*/d' build/_setup_env.sh
             #sed -E -i '/.*export HOST.*/d' build/_setup_env.sh
             sed -E -i '/.*export PATH.*/d' build/_setup_env.sh
-            sed -i '/llvm-/d' build/_setup_env.sh
-            sed -i 's/CC=clang/CC=aarch64-none-linux-gnu-gcc/g' build/_setup_env.sh
+            sed -i  's/llvm-//g' build/_setup_env.sh
+            sed -E -i 's/(^[[:space:]]*)CC=clang/\1CC=aarch64-none-linux-gnu-gcc/g' build/_setup_env.sh
             sed -i 's/HOSTCXX=clang++/HOSTCXX=g++/g' build/_setup_env.sh
             sed -i 's/HOSTCC=clang/HOSTCC=gcc/g' build/_setup_env.sh
             sed -i 's|LLVM|LLLL|g' build/_setup_env.sh
