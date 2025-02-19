@@ -92,7 +92,9 @@ jobs:
           echo
           echo
           echo
-          aarch64-none-linux-gnu-gcc -print-search-dirs | sed 's|:|\n\n|g'
+          which gcc
+          which as
+          #aarch64-none-linux-gnu-gcc -print-search-dirs | sed 's|:|\n\n|g'
           #clang --version
           #clang -print-target-triple
           #sudo find $GITHUB_WORKSPACE/kernel-build-tools/linux-x86/ -type d
