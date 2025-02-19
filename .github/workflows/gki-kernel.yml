@@ -430,9 +430,14 @@ jobs:
             sed -E -i '/.+--rtlib=compiler-rt.*/d' build/_setup_env.sh
             #sed -E -i '/.*export HOST.*/d' build/_setup_env.sh
             sed -E -i '/.*export PATH.*/d' build/_setup_env.sh
+            sed -i '/llvm-/d' build/_setup_env.sh
+            sed -i 's/CC=clang/CC=aarch64-none-linux-gnu-gcc/g' build/_setup_env.sh
+            sed -i 's/HOSTCXX=clang++/HOSTCXX=g++/g' build/_setup_env.sh
+            sed -i 's/HOSTCC=clang/HOSTCC=gcc/g' build/_setup_env.sh
             sed -i 's|LLVM|LLLL|g' build/_setup_env.sh
             sed -i 's|LLVM|LLLL|g' build/build.sh
             sed -i 's|LLVM|LLLL|g' common/Makefile
+            sudo apt-get --assume-yes install lld
             LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
