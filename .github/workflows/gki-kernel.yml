@@ -408,7 +408,8 @@ jobs:
           
           echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
-          
+            echo 'build/_setup_env.sh contents:'
+            cat build/_setup_env.sh
             export BUILD_SCRIPT_DIR=$(dirname $(realpath build/build.sh))
             sed -E -i 's|source .+_setup_env.sh.+|source "${ROOT_DIR}/build/_setup_env.sh";export PATH="${My_PATH}"|g' build/build.sh
             sed -E -i 's|.*export ROOT_DIR=.+dirname.+$|export ROOT_DIR=$($(find ${BUILD_SCRIPT_DIR} -type f -name "gettop.sh"))|g' build/build.sh
@@ -428,6 +429,7 @@ jobs:
             sed -E -i 's|# Copyright.+|export HOSTCC=gcc\\\nexport CC=gcc\\\nexport LD=aarch64-none-linux-gnu-ld\\\nexport AR=aarch64-none-linux-gnu-ar\\\nexport AS=aarch64-none-linux-gnu-as\\\nexport RANLIB=aarch64-none-linux-gnu-ranlib\\\nexport STRIP=aarch64-none-linux-gnu-strip\\\nexport NM=aarch64-none-linux-gnu-nm\\\nexport OBJCOPY=aarch64-none-linux-gnu-objcopy\\\nexport OBJDUMP=aarch64-none-linux-gnu-objdump\\\nexport READELF=aarch64-none-linux-gnu-readelf\\\nexport OBJSIZE=aarch64-none-linux-gnu-size;|g' build/build.sh
             sed -E -i 's|TOOL_ARGS=\(\)|TOOL_ARGS=();unset LLVM;unset LLVM_IAS;|g' build/build.sh
             sed -E -i '/ldflags\+.+fuse-ld.+/d' build/_setup_env.sh
+            sed -E -i 's/--rtlib=compiler-rt//g' build/_setup_env.sh
             #sed -E -i '/.*export HOST.*/d' build/_setup_env.sh
             sed -E -i '/.*export PATH.*/d' build/_setup_env.sh
             sed -i 's|LLVM|LLLL|g' common/Makefile
