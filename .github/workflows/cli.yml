@@ -23,38 +23,38 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-      - name: Cache toolchain
-        id: cache-toolchain
-        uses: actions/cache@v4.2.0
-        with:
-          path: |
-            kernel-build-tools
-            mkbootimg
-            arm-toolchain
-          key: toolchain-${{ runner.os }}-v1
+      #- uses: actions/checkout@v4
+      #- name: Cache toolchain
+       # id: cache-toolchain
+      #  uses: actions/cache@v4.2.0
+       # with:
+        #  path: |
+         #   kernel-build-tools
+         #   mkbootimg
+        #    arm-toolchain
+       #   key: toolchain-${{ runner.os }}-v1
 
       # Step 2: Download toolchain if cache was not found
-      - name: Download toolchain (if cache not found)
-        if: steps.cache-toolchain.outputs.cache-hit != 'true'
-        run: |
-          AOSP_MIRROR=https://android.googlesource.com
-          BRANCH=main-kernel-build-2024
-          git clone $AOSP_MIRROR/kernel/prebuilts/build-tools -b $BRANCH --depth 1 kernel-build-tools
-          git clone $AOSP_MIRROR/platform/system/tools/mkbootimg -b $BRANCH --depth 1 mkbootimg
-          arm_toolchain_url="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu.tar.xz"
-          arm_toolchain_filename="$(echo $arm_toolchain_url | rev | cut -d '/' -f 1 | rev)"
-          mkdir -p arm-toolchain
-          wget -P arm-toolchain $arm_toolchain_url
-          tar -xvf arm-toolchain/${arm_toolchain_filename} -C arm-toolchain/
-          rm -rf arm-toolchain/$arm_toolchain_filename
-          find arm-toolchain/ -type d
-          find arm-toolchain/ -type f -executable
-      - name: Set environment variables
-        run: |
-          echo "AVBTOOL=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin/avbtool" >> $GITHUB_ENV
-          echo "MKBOOTIMG=$GITHUB_WORKSPACE/mkbootimg/mkbootimg.py" >> $GITHUB_ENV
-          echo "UNPACK_BOOTIMG=$GITHUB_WORKSPACE/mkbootimg/unpack_bootimg.py" >> $GITHUB_ENV
+      #- name: Download toolchain (if cache not found)
+        #if: steps.cache-toolchain.outputs.cache-hit != 'true'
+     #   run: |
+       #   AOSP_MIRROR=https://android.googlesource.com
+       #   BRANCH=main-kernel-build-2024
+       #   git clone $AOSP_MIRROR/kernel/prebuilts/build-tools -b $BRANCH --depth 1 kernel-build-tools
+        #  git clone $AOSP_MIRROR/platform/system/tools/mkbootimg -b $BRANCH --depth 1 mkbootimg
+       #   arm_toolchain_url="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu.tar.xz"
+       #   arm_toolchain_filename="$(echo $arm_toolchain_url | rev | cut -d '/' -f 1 | rev)"
+       #   mkdir -p arm-toolchain
+        #  wget -P arm-toolchain $arm_toolchain_url
+        #  tar -xvf arm-toolchain/${arm_toolchain_filename} -C arm-toolchain/
+       #   rm -rf arm-toolchain/$arm_toolchain_filename
+        #  find arm-toolchain/ -type d
+         # find arm-toolchain/ -type f -executable
+      #- name: Set environment variables
+       # run: |
+        #  echo "AVBTOOL=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin/avbtool" >> $GITHUB_ENV
+        #  echo "MKBOOTIMG=$GITHUB_WORKSPACE/mkbootimg/mkbootimg.py" >> $GITHUB_ENV
+        #  echo "UNPACK_BOOTIMG=$GITHUB_WORKSPACE/mkbootimg/unpack_bootimg.py" >> $GITHUB_ENV
 
       - name: Set CONFIG Environment Variable
         run: |
@@ -94,10 +94,10 @@ jobs:
           echo
           which gcc
           which as
-          sudo apt-get --assume-yes install lld
+          #sudo apt-get --assume-yes install lld
           which lld
-          which ld.lld
-          which ld.bfd
+          #which ld.lld
+          #which ld.bfd
           #aarch64-none-linux-gnu-gcc -print-search-dirs | sed 's|:|\n\n|g'
           #clang --version
           #clang -print-target-triple
