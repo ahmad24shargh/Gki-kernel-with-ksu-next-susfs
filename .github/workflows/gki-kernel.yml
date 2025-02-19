@@ -446,7 +446,7 @@ jobs:
             sed -E -i 's/^CC[[:space:]]+\=.+clang.*/CC	= $(CROSS_COMPILE)gcc/g' common/Makefile
             sed -E -i 's/^LD[[:space:]]+\=.+clang.*/LD	= $(CROSS_COMPILE)ld/g' common/Makefile
             sudo apt-get --assume-yes install lld
-            LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
