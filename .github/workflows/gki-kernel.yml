@@ -426,7 +426,7 @@ jobs:
             #LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}"
 
             #for arm toolchain
-            sed -E -i 's|# Copyright.+|export HOSTCC=gcc;export CC=aarch64-none-linux-gnu-gcc;export LD=aarch64-none-linux-gnu-ld;export AR=aarch64-none-linux-gnu-ar;export AS=aarch64-none-linux-gnu-as;export RANLIB=aarch64-none-linux-gnu-ranlib;export STRIP=aarch64-none-linux-gnu-strip;export NM=aarch64-none-linux-gnu-nm;export OBJCOPY=aarch64-none-linux-gnu-objcopy;export OBJDUMP=aarch64-none-linux-gnu-objdump;export READELF=aarch64-none-linux-gnu-readelf;export OBJSIZE=aarch64-none-linux-gnu-size;|g' build/build.sh
+            sed -E -i 's|# Copyright.+|export HOSTCC=gcc;export HOSTLD=ld;export CC=aarch64-none-linux-gnu-gcc;export LD=aarch64-none-linux-gnu-ld;export AR=aarch64-none-linux-gnu-ar;export AS=aarch64-none-linux-gnu-as;export RANLIB=aarch64-none-linux-gnu-ranlib;export STRIP=aarch64-none-linux-gnu-strip;export NM=aarch64-none-linux-gnu-nm;export OBJCOPY=aarch64-none-linux-gnu-objcopy;export OBJDUMP=aarch64-none-linux-gnu-objdump;export READELF=aarch64-none-linux-gnu-readelf;export OBJSIZE=aarch64-none-linux-gnu-size;|g' build/build.sh
             sed -E -i 's|TOOL_ARGS=\(\)|TOOL_ARGS=();unset LLVM;unset LLVM_IAS;|g' build/build.sh
             #sed -E -i '/ldflags\+.+fuse-ld.+/d' build/_setup_env.sh
             sed -E -i '/.+--rtlib=compiler-rt.*/d' build/_setup_env.sh
