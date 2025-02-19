@@ -94,7 +94,9 @@ jobs:
           echo
           which gcc
           which as
+          sudo apt-get --assume-yes install lld
           which lld
+          which ld.lld
           which ld.bfd
           #aarch64-none-linux-gnu-gcc -print-search-dirs | sed 's|:|\n\n|g'
           #clang --version
