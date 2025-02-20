@@ -52,7 +52,7 @@ jobs:
           temp-reserve-mb: 2048
           swap-size-mb: 8192
           remove-dotnet: "true"
-          remove-android: "false"
+          remove-android: "true"
           remove-haskell: "true"
           remove-codeql: "true"
 
@@ -84,7 +84,8 @@ jobs:
         if: steps.cache-toolchain.outputs.cache-hit != 'true'
         run: |
           AOSP_MIRROR=https://android.googlesource.com
-          BRANCH=main-kernel-build-2024
+          #BRANCH=main-kernel-build-2024
+          BRANCH=master
           git clone $AOSP_MIRROR/kernel/prebuilts/build-tools -b $BRANCH --depth 1 kernel-build-tools
           git clone $AOSP_MIRROR/platform/system/tools/mkbootimg -b $BRANCH --depth 1 mkbootimg
           arm_toolchain_url="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu.tar.xz"
@@ -125,15 +126,13 @@ jobs:
           echo "Cloning AnyKernel3 and other dependencies..."
 
           # Define the branch names using the inputs values
-          ANYKERNEL_BRANCH="${{ inputs.android_version }}-${{ inputs.kernel_version }}"
           SUSFS_BRANCH="gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}"
 
           # Debug print the branches
-          echo "Using branch for AnyKernel3: $ANYKERNEL_BRANCH"
           echo "Using branch for SUSFS: $SUSFS_BRANCH"
 
           # Clone repositories using the branch names
-          git clone https://github.com/WildPlusKernel/AnyKernel3.git -b "$ANYKERNEL_BRANCH"
+          git clone https://github.com/WildPlusKernel/AnyKernel3.git -b "gki"
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b "$SUSFS_BRANCH"
           git clone https://github.com/WildPlusKernel/kernel_patches.git
 
@@ -199,135 +198,84 @@ jobs:
           #fi  
           #sed -E -i  '/if.+GKI_BUILD_CONFIG_FRAGMENT.+then/,/fi/d' $CONFIG/common/build.config.gki.aarch64          
  
-      - name: Determine the branch for KernelSU & MKSU
-        if: ${{ inputs.kernelsu_variant == 'Official' || inputs.kernelsu_variant == 'MKSU' }}
+      - name: Determine the branch for KernelSU
         run: |
           if [[ "${{ inputs.kernelsu_branch }}" == "Stable" ]]; then
-            echo "BRANCH=-" >> $GITHUB_ENV
-          elif [[ "${{ inputs.kernelsu_branch }}" == "Dev" ]]; then
-            echo "BRANCH=-s main" >> $GITHUB_ENV
+              echo "BRANCH=-" >> $GITHUB_ENV
+          elif [[ "${{ inputs.kernelsu_branch }}" == "Dev" && ( "${{ inputs.kernelsu_variant }}" == "Official" || "${{ inputs.kernelsu_variant }}" == "MKSU" ) ]]; then
+              echo "BRANCH=-s main" >> $GITHUB_ENV
+          elif [[ "${{ inputs.kernelsu_branch }}" == "Dev" && "${{ inputs.kernelsu_variant }}" == "Next" ]]; then
+              echo "BRANCH=-s next" >> $GITHUB_ENV
           elif [[ "${{ inputs.kernelsu_branch }}" == "Other" && -n "${{ inputs.kernelsu_branch_other }}" ]]; then
             echo "BRANCH=-s ${{ inputs.kernelsu_branch_other }}" >> $GITHUB_ENV
           else
             echo "Error: Custom branch not provided for 'Other'" >&2
             exit 1
           fi
-
-      - name: Determine the branch for kernelsu-next
-        if: ${{ inputs.kernelsu_variant == 'Next' }}
+      
+      - name: Add KernelSU
         run: |
-          if [[ "${{ inputs.kernelsu_branch }}" == "Stable" ]]; then
-            echo "BRANCH=-" >> $GITHUB_ENV
-          elif [[ "${{ inputs.kernelsu_branch }}" == "Dev" ]]; then
-            echo "BRANCH=-s next" >> $GITHUB_ENV
-          elif [[ "${{ inputs.kernelsu_branch }}" == "Other" && -n "${{ inputs.kernelsu_branch_other }}" ]]; then
-            echo "BRANCH=-s ${{ inputs.kernelsu_branch_other }}" >> $GITHUB_ENV
+          echo "Changing to configuration directory: $CONFIG..."
+          cd "$CONFIG"
+
+          if [ "${{ inputs.kernelsu_variant }}" == "Official" ]; then
+            echo "Adding KernelSU Official..."
+            curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash $BRANCH
+          elif [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
+            echo "Adding KernelSU Next..."
+            curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash $BRANCH
+          elif [ "${{ inputs.kernelsu_variant }}" == "MKSU" ]; then
+            echo "Adding KernelSU MKSU..."
+            curl -LSs "https://raw.githubusercontent.com/5ec1cff/KernelSU/main/kernel/setup.sh" | bash $BRANCH
+
+            # Revert commit of remove pts_unix98_lookup_pre
+            cd KernelSU
+            git revert -m 1 $(git log --grep="remove devpts hook" --pretty=format:"%h") -n
+            KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 12063)
+            echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
+            sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
           else
-            echo "Error: Custom branch not provided for 'Other'" >&2
+            echo "Invalid KernelSU variant selected!"
             exit 1
           fi
 
-      - name: Add KernelSU-Official
-        if: ${{ inputs.kernelsu_variant == 'Official' }}
+      - name: Apply SUSFS Patches for KernelSU Variants
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
-
-          echo "Adding KernelSU..."
-          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash $BRANCH
-
-      - name: Add KernelSU-Next
-        if: ${{ inputs.kernelsu_variant == 'Next' }}
-        run: |
-          echo "Changing to configuration directory: $CONFIG..."
-          cd "$CONFIG"
-
-          echo "Adding KernelSU..."
-          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash $BRANCH
-
-      - name: Add KernelSU-MKSU
-        if: ${{ inputs.kernelsu_variant == 'MKSU' }}
-        run: |
-          echo "Changing to configuration directory: $CONFIG..."
-          cd "$CONFIG"
-
-          echo "Adding KernelSU..."
-          curl -LSs "https://raw.githubusercontent.com/5ec1cff/KernelSU/main/kernel/setup.sh" | bash $BRANCH
-
-          # Revert commit of remove pts_unix98_lookup_pre
-          cd KernelSU
-          git revert -m 1 $(git log --grep="remove devpts hook" --pretty=format:"%h") -n
-          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 12063)
-          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
-          sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
-
-      - name: Apply SUSFS Patches KernelSU
-        if: ${{ inputs.kernelsu_variant == 'Official' }}
-        run: |
-          echo "Changing to configuration directory: $CONFIG..."
-          cd "$CONFIG"
-
-          echo "Applying SUSFS patches..."
-
-          # Copy SUSFS patches
-          cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch ./common/
-          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-
-          cd ./KernelSU
-          echo "Applying SUSFS patches..."
-          patch -p1 --forward < 10_enable_susfs_for_ksu.patch
-
-          # Change to common directory and apply SUSFS patch
-          cd ../common
-          patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
-
-      - name: Apply SUSFS Patches KernelSU-Next
-        if: ${{ inputs.kernelsu_variant == 'Next' }}
-        run: |
-          echo "Changing to configuration directory: $CONFIG..."
-          cd "$CONFIG"
-
-          echo "Applying SUSFS patches..."
-
-          # Copy SUSFS patches
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch ./common/
-          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-
-          cd ./KernelSU-Next
-          echo "Applying next SUSFS patches..."
-          cp ../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./
-          patch -p1 --forward < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
-
-          # Change to common directory and apply SUSFS patch
-          cd ../common
-          patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
-
-      - name: Apply SUSFS Patches MKSU
-        if: ${{ inputs.kernelsu_variant == 'MKSU' }}
-        run: |
-          echo "Changing to configuration directory: $CONFIG..."
-          cd "$CONFIG"
-
-          echo "Applying SUSFS patches..."
-
-          # Copy SUSFS patches
-          cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch ./common/
-          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-
-          cd ./KernelSU
-          echo "Applying SUSFS patches..."
-          patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
           
-          echo "Applying mksu_susfs.patch"
-          cp ../../kernel_patches/mksu_susfs.patch ../KernelSU/
-          patch -p1 < mksu_susfs.patch
+          echo "Applying SUSFS patches..."
+          
+          # Copy SUSFS patches
+          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch ./common/
+          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
-          # Change to common directory and apply SUSFS patch
+          if [ "${{ inputs.kernelsu_variant }}" == "Official" ]; then
+            echo "Applying SUSFS patches for Official KernelSU..."
+            cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
+            cd ./KernelSU
+            patch -p1 --forward < 10_enable_susfs_for_ksu.patch
+          elif [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
+            echo "Applying SUSFS patches for KernelSU-Next..."
+            cd ./KernelSU-Next
+            cp ../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./
+            patch -p1 --forward < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
+          elif [ "${{ inputs.kernelsu_variant }}" == "MKSU" ]; then
+            echo "Applying SUSFS patches for MKSU..."
+            cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
+            cd ./KernelSU
+            patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
+            
+            echo "Applying MKSU specific SUSFS patch..."
+            cp ../../kernel_patches/mksu_susfs.patch ../KernelSU/
+            patch -p1 < mksu_susfs.patch
+          else
+            echo "Invalid KernelSU variant selected!"
+            exit 1
+          fi
+
+          # Change to common directory and apply common SUSFS patch
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
 
@@ -338,7 +286,7 @@ jobs:
           # Apply additional patch
           cp ../../kernel_patches/69_hide_stuff.patch ./
           patch -p1 -F 3 < 69_hide_stuff.patch
-
+            
       - name: Add SUSFS Configuration Settings
         run: |
           echo "Changing to configuration directory: $CONFIG..."
@@ -355,7 +303,7 @@ jobs:
           echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -368,6 +316,11 @@ jobs:
           # Add additional tmpfs config setting
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # Add additional tmpfs config setting
+          echo "CONFIG_IP_NF_TARGET_TTL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP6_NF_TARGET_HL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP6_NF_MATCH_HL=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
@@ -382,30 +335,30 @@ jobs:
           # Run perl command to modify UTS_VERSION
           #perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Sat Apr 20 04:20:00 UTC 2024"}' ./common/scripts/mkcompile_h
           
-
           export LIBRARY_PATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/lib64
           export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
           My_Args=' -march=armv8-a+crc+crypto -mtune=cortex-a73 '
 
           #for ndk
-          #export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
-          #export TARGET=aarch64-linux-android
-          #export CC="clang --target=${TARGET}${API} ${My_Args}"
-          #export My_PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
+          export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
+          export TARGET=aarch64-linux-android
+          CC="clang --target=${TARGET}${API} ${My_Args}"
+          export My_PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
           
           #for arm-toolchain
-          TOOLCHAIN=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu
-          CC="aarch64-none-linux-gnu-gcc ${My_Args}"
-          LD="aarch64-none-linux-gnu-ld"
-          sudo test ! -e ${TOOLCHAIN}/bin/llvm-ar  && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ar ${TOOLCHAIN}/bin/llvm-ar;sudo test ! -e "${TOOLCHAIN}/bin/llvm-as"  && sudo ln -s "${TOOLCHAIN}/bin/aarch64-none-linux-gnu-as" "${TOOLCHAIN}/bin/llvm-as"
-          export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
+          #TOOLCHAIN=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu
+          #CC="aarch64-none-linux-gnu-gcc ${My_Args}"
+          #LD="aarch64-none-linux-gnu-ld"
+          #sudo test ! -e ${TOOLCHAIN}/bin/llvm-ar  && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ar ${TOOLCHAIN}/bin/llvm-ar;sudo test ! -e "${TOOLCHAIN}/bin/llvm-as"  && sudo ln -s "${TOOLCHAIN}/bin/aarch64-none-linux-gnu-as" "${TOOLCHAIN}/bin/llvm-as"
+          #export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
           
 
 
 
           #export CC_ARG="${CC}"
           
+
           echo "Building the kernel..."
           if [ -f "build/build.sh" ]; then
             export BUILD_SCRIPT_DIR=$(dirname $(realpath build/build.sh))
@@ -421,48 +374,47 @@ jobs:
             
             
             #for ndk
-            #LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}"
+            LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}"
 
             #for arm toolchain
-            sed -i 's|LLVM|LLLL|g' build/_setup_env.sh
-            sed -i 's|LLVM|LLLL|g' build/build.sh
-            sed -E -i 's|TOOL_ARGS=\(\)|TOOL_ARGS=();unset LLVM;unset LLVM_IAS;|g' build/_setup_env.sh
-            #sed -E -i '/ldflags\+.+fuse-ld.+/d' build/_setup_env.sh
-            sed -E -i '/.+--rtlib=compiler-rt.*/d' build/_setup_env.sh
-            #sed -E -i '/.*export HOST.*/d' build/_setup_env.sh
-            sed -E -i '/.*export PATH.*/d' build/_setup_env.sh
-            sed -E -i 's|--sysroot=[^"]+|--sysroot=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc|g' build/_setup_env.sh
-            sed -i  's/llvm-/aarch64-none-linux-gnu-/g' build/_setup_env.sh
-            sed -i  's/llvm-/aarch64-none-linux-gnu-/g' build/build.sh
-            sed -E -i 's/(^[[:space:]]*)CC=clang/\1CC=aarch64-none-linux-gnu-gcc/g' build/_setup_env.sh
-            sed -i 's/HOSTCXX=clang++/HOSTCXX=g++/g' build/_setup_env.sh
-            sed -i 's/HOSTCC=clang/HOSTCC=gcc/g' build/_setup_env.sh
-            sed -i 's|source "${ROOT_DIR}/build/_setup_env.sh"|source "${ROOT_DIR}/build/_setup_env.sh";HOSTCC=gcc;HOSTLD=ld.bfd;LD=aarch64-none-linux-gnu-ld;CC=aarch64-none-linux-gnu-gcc;AR=aarch64-none-linux-gnu-ar;AS=aarch64-none-linux-gnu-as;RANLIB=aarch64-none-linux-gnu-ranlib;STRIP=aarch64-none-linux-gnu-strip;NM=aarch64-none-linux-gnu-nm;OBJCOPY=aarch64-none-linux-gnu-objcopy;OBJDUMP=aarch64-none-linux-gnu-objdump;READELF=aarch64-none-linux-gnu-readelf;OBJSIZE=aarch64-none-linux-gnu-size|g' build/build.sh
-            sed -E -i 's|(.+\-.[[:space:]]+LTO_CLANG[[:space:]]+\\.*)|\1\n-e CONFIG_CC_IS_GCC \\\n -d  CONFIG_CC_IS_CLANG \\\n -d  CONFIG_AS_IS_LLVM \\\n -e CONFIG_CFI_PERMISSIVE \\|g' build/build.sh
-            echo "CONFIG_CFI_PERMISSIVE=y" >> ./common/arch/arm64/configs/gki_defconfig
-            sed -i 's/ifneq ($(LLVM),)/ifeq ($(LLVM),)/g' common/Makefile
-            sed -i  's/llvm-/$(CROSS_COMPILE)/g' common/Makefile
-            sed -E -i 's/.*HOSTCC.+\=.+clang.*/HOSTCC	= gcc/g' common/Makefile
-            sed -E -i 's/.*HOSTCXX.+\=.+clang\+\+.*/HOSTCXX	= g++/g' common/Makefile
-            sed -E -i 's/^CC[[:space:]]+\=.+clang.*/CC	= $(CROSS_COMPILE)gcc/g' common/Makefile
-            sed -E -i 's/^LD[[:space:]]+\=.+clang.*/LD	= $(CROSS_COMPILE)ld/g' common/Makefile
-            sed -i 's|export CC_FLAGS_CFI|CC_FLAGS_CFI	:= -fsanitize=undefined;export CC_FLAGS_CFI|g' common/Makefile
-            sed -i '/KBUILD_CFLAGS	+= $(CC_FLAGS_CFI)/d' common/Makefile
-            sudo apt-get --assume-yes install lld
-
-            #for arm toolchain
-            #Turn off KMI strict mode
-            #ERROR: Differences between ksymtab and symbol list detected!
-            #Symbols missing from ksymtab:
-            # - __cfi_slowpath_diag
-            #- __ubsan_handle_cfi_check_fail_abort
-            #Symbols missing from symbol list
-            sed -E -i 's|TRIM_NONLISTED_KMI\=.+|TRIM_NONLISTED_KMI=${TRIM_NONLISTED_KMI:0}|g' common/build.config.gki.aarch64
-            sed -E -i 's|KMI_SYMBOL_LIST_STRICT_MODE\=.+|KMI_SYMBOL_LIST_STRICT_MODE=${KMI_SYMBOL_LIST_STRICT_MODE:0}|g' common/build.config.gki.aarch64
-            LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
+            #sed -i 's|LLVM|LLLL|g' build/_setup_env.sh
+            #sed -i 's|LLVM|LLLL|g' build/build.sh
+            #sed -E -i 's|TOOL_ARGS=\(\)|TOOL_ARGS=();unset LLVM;unset LLVM_IAS;|g' build/_setup_env.sh
+            ##sed -E -i '/ldflags\+.+fuse-ld.+/d' build/_setup_env.sh
+            #sed -E -i '/.+--rtlib=compiler-rt.*/d' build/_setup_env.sh
+            ##sed -E -i '/.*export HOST.*/d' build/_setup_env.sh
+            #sed -E -i '/.*export PATH.*/d' build/_setup_env.sh
+            #sed -E -i 's|--sysroot=[^"]+|--sysroot=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc|g' build/_setup_env.sh
+            #sed -i  's/llvm-/aarch64-none-linux-gnu-/g' build/_setup_env.sh
+            #sed -i  's/llvm-/aarch64-none-linux-gnu-/g' build/build.sh
+            #sed -E -i 's/(^[[:space:]]*)CC=clang/\1CC=aarch64-none-linux-gnu-gcc/g' build/_setup_env.sh
+            #sed -i 's/HOSTCXX=clang++/HOSTCXX=g++/g' build/_setup_env.sh
+            #sed -i 's/HOSTCC=clang/HOSTCC=gcc/g' build/_setup_env.sh
+            #sed -i 's|source "${ROOT_DIR}/build/_setup_env.sh"|source "${ROOT_DIR}/build/_setup_env.sh";HOSTCC=gcc;HOSTLD=ld.bfd;LD=aarch64-none-linux-gnu-ld;CC=aarch64-none-linux-gnu-gcc;AR=aarch64-none-linux-gnu-ar;AS=aarch64-none-linux-gnu-as;RANLIB=aarch64-none-linux-gnu-ranlib;STRIP=aarch64-none-linux-gnu-strip;NM=aarch64-none-linux-gnu-nm;OBJCOPY=aarch64-none-linux-gnu-objcopy;OBJDUMP=aarch64-none-linux-gnu-objdump;READELF=aarch64-none-linux-gnu-readelf;OBJSIZE=aarch64-none-linux-gnu-size|g' build/build.sh
+            #sed -E -i 's|(.+\-.[[:space:]]+LTO_CLANG[[:space:]]+\\.*)|\1\n-e CONFIG_CC_IS_GCC \\\n -d  CONFIG_CC_IS_CLANG \\\n -d  CONFIG_AS_IS_LLVM \\\n -e CONFIG_CFI_PERMISSIVE \\|g' build/build.sh
+            #echo "CONFIG_CFI_PERMISSIVE=y" >> ./common/arch/arm64/configs/gki_defconfig
+            #sed -i 's/ifneq ($(LLVM),)/ifeq ($(LLVM),)/g' common/Makefile
+            #sed -i  's/llvm-/$(CROSS_COMPILE)/g' common/Makefile
+            #sed -E -i 's/.*HOSTCC.+\=.+clang.*/HOSTCC	= gcc/g' common/Makefile
+            #sed -E -i 's/.*HOSTCXX.+\=.+clang\+\+.*/HOSTCXX	= g++/g' common/Makefile
+            #sed -E -i 's/^CC[[:space:]]+\=.+clang.*/CC	= $(CROSS_COMPILE)gcc/g' common/Makefile
+            #sed -E -i 's/^LD[[:space:]]+\=.+clang.*/LD	= $(CROSS_COMPILE)ld/g' common/Makefile
+            #sed -i 's|export CC_FLAGS_CFI|CC_FLAGS_CFI	:= -fsanitize=undefined;export CC_FLAGS_CFI|g' common/Makefile
+            #sed -i '/KBUILD_CFLAGS	+= $(CC_FLAGS_CFI)/d' common/Makefile
+            #sudo apt-get --assume-yes install lld
+            ##Turn off KMI strict mode
+            ##ERROR: Differences between ksymtab and symbol list detected!
+            ##Symbols missing from ksymtab:
+            ## - __cfi_slowpath_diag
+            ##- __ubsan_handle_cfi_check_fail_abort
+            ##Symbols missing from symbol list
+            #sed -E -i 's|TRIM_NONLISTED_KMI\=.+|TRIM_NONLISTED_KMI=${TRIM_NONLISTED_KMI:0}|g' common/build.config.gki.aarch64
+            #sed -E -i 's|KMI_SYMBOL_LIST_STRICT_MODE\=.+|KMI_SYMBOL_LIST_STRICT_MODE=${KMI_SYMBOL_LIST_STRICT_MODE:0}|g' common/build.config.gki.aarch64
+            #LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
             sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
+            sed -i 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION="-Wild+"/' ./common/scripts/setlocalversion
             tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
           fi
 
@@ -479,7 +431,7 @@ jobs:
           cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image.lz4 ./
 
           # Create gzip of the Image file
-          #gzip -n -k -f -9 ./Image > ./Image.gz
+          gzip -n -k -f -9 ./Image > ./Image.gz
 
       - name: Create Bootimgs Folder and Copy Images
         if: ${{ inputs.android_version == 'android14' || inputs.android_version == 'android15' }}
@@ -494,7 +446,7 @@ jobs:
           cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image.lz4 ./
 
           # Create gzip of the Image file
-          #gzip -n -k -f -9 ./Image > ./Image.gz
+          gzip -n -k -f -9 ./Image > ./Image.gz
 
       - name: Create ZIP Files for Different Formats
         run: |
@@ -521,8 +473,7 @@ jobs:
           #rm ./Image.gz
 
       - name: Run Boot Image ${{ inputs.android_version }} Build Script
-        #if: ${{ inputs.android_version == 'android12' }}
-        if: false
+        if: ${{ inputs.android_version == 'android12' }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd bootimgs
@@ -576,7 +527,7 @@ jobs:
         run: |
           cd bootimgs
 
-          echo "Building Image.gz"
+          #echo "Building Image.gz"
           #gzip -n -k -f -9 ./Image > ./Image.gz
 
           echo "Building boot.img"
