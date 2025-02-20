@@ -52,7 +52,7 @@ jobs:
           temp-reserve-mb: 2048
           swap-size-mb: 8192
           remove-dotnet: "true"
-          remove-android: "true"
+          remove-android: "false"
           remove-haskell: "true"
           remove-codeql: "true"
 
@@ -371,7 +371,6 @@ jobs:
             
             #for ndk and arm-toolchain
             sed -E -i '/.*sysroot_flags\+=.+/d' build/_setup_env.sh
-            sudo apt-get --assume-yes install lld
             
             #for ndk
             LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}"
@@ -409,6 +408,7 @@ jobs:
             ##Symbols missing from symbol list
             #sed -E -i 's|TRIM_NONLISTED_KMI\=.+|TRIM_NONLISTED_KMI=${TRIM_NONLISTED_KMI:0}|g' common/build.config.gki.aarch64
             #sed -E -i 's|KMI_SYMBOL_LIST_STRICT_MODE\=.+|KMI_SYMBOL_LIST_STRICT_MODE=${KMI_SYMBOL_LIST_STRICT_MODE:0}|g' common/build.config.gki.aarch64
+            #sudo apt-get --assume-yes install lld
             #LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu-
           else
             rm -rf ./common/android/abi_gki_protected_exports_*
