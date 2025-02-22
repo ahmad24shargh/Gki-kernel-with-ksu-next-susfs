@@ -254,7 +254,7 @@ jobs:
             cd ./KernelSU-Next
             cp ../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./
             patch -p1 --forward < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
-            sed -E -i 's|([[:space:]]+)try_umount(.+0)(\)\;)|\1ksu_try_umount\2, uid);|g' ../common/drivers/kernelsu/core_hook.c
+            patch -p1 --forward < "${repo_path}/core_hook_patch.txt" || true
           elif [ "${{ inputs.kernelsu_variant }}" == "MKSU" ]; then
             echo "Applying SUSFS patches for MKSU..."
             cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
