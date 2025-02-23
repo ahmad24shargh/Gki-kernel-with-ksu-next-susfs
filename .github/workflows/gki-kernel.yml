@@ -180,7 +180,7 @@ jobs:
           #mkdir -p $CONFIG/out
           #cp "$defconfig" $CONFIG/out/.config
           #mkdir -p $CONFIG/common/arch/arm64/configs
-          cp "$defconfig" $CONFIG/common/arch/arm64/configs/gki_defconfig
+          #cp "$defconfig" $CONFIG/common/arch/arm64/configs/gki_defconfig
           #cp "${repo_path}/Kconfig" $CONFIG/common/
           #cp "${repo_path}/arch/arm64/Kconfig" $CONFIG/common/arch/arm64/
           #cp "${repo_path}/drivers/remoteproc/Kconfig" $CONFIG/common/drivers/remoteproc/
@@ -327,16 +327,16 @@ jobs:
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
 
-          #sed -i '$s|echo "\$res"|echo "\$res-Wild+"|' ./common/scripts/setlocalversion
+          sed -i '$s|echo "\$res"|echo "\$res-Wild+"|' ./common/scripts/setlocalversion
 
           # Run perl command to modify UTS_VERSION
-          #perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Sat Apr 20 04:20:00 UTC 2024"}' ./common/scripts/mkcompile_h
+          perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Sat Apr 20 04:20:00 UTC 2024"}' ./common/scripts/mkcompile_h
           
           
           export LIBRARY_PATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/lib64
           export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
           export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
-          My_Args=' -march=armv8-a+crc+crypto -mtune=cortex-a73 '
+          #My_Args=' -march=armv8-a+crc+crypto -mtune=cortex-a73 '
 
           #for ndk
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
