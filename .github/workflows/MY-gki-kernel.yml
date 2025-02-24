@@ -1,4 +1,4 @@
-name: GKI Kernel Build
+name: MY GKI Kernel Build
 permissions:
   contents: write  # Allow writing to repository contents (for pushing tags)
   actions: write   # Allows triggering actions
@@ -225,8 +225,8 @@ jobs:
             curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash $BRANCH
           elif [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
             echo "Adding KernelSU Next..."
-            #curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash $BRANCH
-            curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
+            #curl -LSs "https://raw.githubusercontent.com/ahmad24shargh/KernelSU-Next/refs/heads/next/kernel/setup.sh" | bash $BRANCH
+            curl -LSs "https://raw.githubusercontent.com/ahmad24shargh/KernelSU-Next/refs/heads/next/kernel/setup.sh" | bash -s next-susfs
           elif [ "${{ inputs.kernelsu_variant }}" == "MKSU" ]; then
             echo "Adding KernelSU MKSU..."
             curl -LSs "https://raw.githubusercontent.com/5ec1cff/KernelSU/main/kernel/setup.sh" | bash $BRANCH
