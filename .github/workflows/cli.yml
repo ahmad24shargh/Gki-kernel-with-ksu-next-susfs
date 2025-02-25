@@ -94,9 +94,9 @@ jobs:
           echo
           which gcc
           which as
-          find /home/runner -type f -name 'libclang_rt.builtins'
+          find /home/runner -type f -name 'libclang_rt.builtins*' 2>/dev/null
           #sudo apt-get --assume-yes install lld
-          $which lld
+          #$which lld
           #which ld.lld
           #which ld.bfd
           #aarch64-none-linux-gnu-gcc -print-search-dirs | sed 's|:|\n\n|g'
