@@ -94,7 +94,7 @@ jobs:
           echo
           which gcc
           which as
-          find /home -type f -name 'libclang_rt.builtins*' 2>/dev/null
+          sudo find /home -type f -name 'libclang_rt.builtins*' 2>/dev/null
           #sudo apt-get --assume-yes install lld
           #$which lld
           #which ld.lld
