@@ -71,7 +71,14 @@ jobs:
           echo "CONFIG=$CONFIG" >> $GITHUB_ENV
 
           echo "CONFIG set to: $CONFIG"
-
+          
+      - name: Setup ccache
+        #if: inputs.use_cache == true
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: $CONFIG
+          max-size: 2G
+          
       - name: Cache toolchain
         id: cache-toolchain
         uses: actions/cache@v4.2.0
@@ -134,7 +141,7 @@ jobs:
           echo "Using branch for SUSFS: $SUSFS_BRANCH"
 
           # Clone repositories using the branch names
-          git clone https://github.com/WildPlusKernel/AnyKernel3.git -b "gki"
+          git clone https://github.com/WildPlusKernel/AnyKernel3.git -b "gki-2.0"
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b "$SUSFS_BRANCH"
           git clone https://github.com/WildPlusKernel/kernel_patches.git
 
@@ -226,8 +233,8 @@ jobs:
             curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash $BRANCH
           elif [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
             echo "Adding KernelSU Next..."
-            #curl -LSs "https://raw.githubusercontent.com/ahmad24shargh/KernelSU-Next/refs/heads/next/kernel/setup.sh" | bash $BRANCH
-            curl -LSs "https://raw.githubusercontent.com/ahmad24shargh/KernelSU-Next/refs/heads/next/kernel/setup.sh" | bash -s next-susfs
+            curl -LSs "https://raw.githubusercontent.com/ahmad24shargh/KernelSU-Next/refs/heads/next/kernel/setup.sh" | bash $BRANCH
+            #curl -LSs "https://raw.githubusercontent.com/ahmad24shargh/KernelSU-Next/refs/heads/next/kernel/setup.sh" | bash -s next-susfs
           elif [ "${{ inputs.kernelsu_variant }}" == "MKSU" ]; then
             echo "Adding KernelSU MKSU..."
             curl -LSs "https://raw.githubusercontent.com/5ec1cff/KernelSU/main/kernel/setup.sh" | bash $BRANCH
@@ -251,10 +258,10 @@ jobs:
             cd ./KernelSU
             patch -p1 --forward < 10_enable_susfs_for_ksu.patch
           elif [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
-            #echo "Applying SUSFS patches for KernelSU-Next..."
+            echo "Applying SUSFS patches for KernelSU-Next..."
             cd ./KernelSU-Next
-            #cp ${repo_path}/ksun-susfs1.5.5.patch ./
-            #patch -p1 --forward < ksun-susfs1.5.5.patch || true
+            cp ${repo_path}/ksun-susfs1.5.5.patch ./
+            patch -p1 --forward < ksun-susfs1.5.5.patch || true
           elif [ "${{ inputs.kernelsu_variant }}" == "MKSU" ]; then
             echo "Applying SUSFS patches for MKSU..."
             cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
@@ -276,23 +283,26 @@ jobs:
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
           
-      - name: Apply Hide Stuff Patches
-        run: |
-          echo "Changing to configuration directory: $CONFIG..."
-          cd "$CONFIG/common"
-          # Apply additional patch
-          cp ../../kernel_patches/69_hide_stuff.patch ./
-          patch -p1 -F 3 < 69_hide_stuff.patch
+      #- name: Apply Hide Stuff Patches
+      #  run: |
+      #    echo "Changing to configuration directory: $CONFIG..."
+       #   cd "$CONFIG/common"
+      #    # Apply additional patch
+        #  cp ../../kernel_patches/69_hide_stuff.patch ./
+       #   patch -p1 -F 3 < 69_hide_stuff.patch
             
       - name: Add SUSFS Configuration Settings
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
 
-          echo "Adding configuration settings to gki_defconfig..."
+          # Add KSU configuration settings
+          echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          #echo "CONFIG_KSU_WITH_KPROBES=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # Add SUSFS configuration settings
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_WITH_KPROBES=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -340,12 +350,12 @@ jobs:
           #for ndk
           export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
           export TARGET=aarch64-linux-android
-          export CC="clang --target=${TARGET}${API} ${My_Args}"
+          export CC="/usr/bin/ccache clang --target=${TARGET}${API} ${My_Args}"
           export My_PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
           
           #for arm-toolchain
           #TOOLCHAIN=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu
-          #CC="aarch64-none-linux-gnu-gcc ${My_Args}"
+          #CC="/usr/bin/ccache aarch64-none-linux-gnu-gcc ${My_Args}"
           #LD="aarch64-none-linux-gnu-ld"
           #sudo test ! -e ${TOOLCHAIN}/bin/llvm-ar  && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ar ${TOOLCHAIN}/bin/llvm-ar;sudo test ! -e "${TOOLCHAIN}/bin/llvm-as"  && sudo ln -s "${TOOLCHAIN}/bin/aarch64-none-linux-gnu-as" "${TOOLCHAIN}/bin/llvm-as"
           #export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
