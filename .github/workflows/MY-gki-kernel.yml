@@ -55,7 +55,8 @@ jobs:
           remove-android: "false"
           remove-haskell: "true"
           remove-codeql: "true"
-
+          
+      - uses: actions/checkout@v4
       - name: Set CONFIG Environment Variable
         run: |
           # Set CONFIG dynamically based on inputs values
