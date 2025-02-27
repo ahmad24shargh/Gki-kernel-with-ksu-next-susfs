@@ -380,23 +380,23 @@ jobs:
             cd "$CONFIG"
             
             export LIBRARY_PATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/lib64
-          export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
-          export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
-          My_Args=' -march=armv8-a+crc+crypto -mtune=cortex-a73 '
+            export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
+            export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
+            My_Args=' -march=armv8-a+crc+crypto -mtune=cortex-a73 '
 
-          #for ndk
-          export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
-          export TARGET=aarch64-linux-android
-          export CC="/usr/bin/ccache clang --target=${TARGET}${API} ${My_Args}"
-          export My_PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
+            #for ndk
+            export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
+            export TARGET=aarch64-linux-android
+            export CC="/usr/bin/ccache clang --target=${TARGET}${API} ${My_Args}"
+            export My_PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_LATEST_HOME}/prebuilt/linux-x86_64/bin/:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
           
-          #for arm-toolchain
-          #TOOLCHAIN=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu
-          #CC="/usr/bin/ccache aarch64-none-linux-gnu-gcc ${My_Args}"
-          #LD="aarch64-none-linux-gnu-ld"
-          #sudo test ! -e ${TOOLCHAIN}/bin/llvm-ar  && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ar ${TOOLCHAIN}/bin/llvm-ar;sudo test ! -e "${TOOLCHAIN}/bin/llvm-as"  && sudo ln -s "${TOOLCHAIN}/bin/aarch64-none-linux-gnu-as" "${TOOLCHAIN}/bin/llvm-as"
-          #export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
-          #export CC_ARG="${CC}"
+            #for arm-toolchain
+            #TOOLCHAIN=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu
+            #CC="/usr/bin/ccache aarch64-none-linux-gnu-gcc ${My_Args}"
+            #LD="aarch64-none-linux-gnu-ld"
+            #sudo test ! -e ${TOOLCHAIN}/bin/llvm-ar  && sudo ln -s ${TOOLCHAIN}/bin/aarch64-none-linux-gnu-ar ${TOOLCHAIN}/bin/llvm-ar;sudo test ! -e "${TOOLCHAIN}/bin/llvm-as"  && sudo ln -s "${TOOLCHAIN}/bin/aarch64-none-linux-gnu-as" "${TOOLCHAIN}/bin/llvm-as"
+            #export My_PATH="${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin:${PATH}:$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/bin"
+            #export CC_ARG="${CC}"
           
           
           
@@ -418,41 +418,41 @@ jobs:
               LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" || exit 1
             
 
-            #for arm toolchain
-            #sed -i 's|LLVM|LLLL|g' build/_setup_env.sh
-            #sed -i 's|LLVM|LLLL|g' build/build.sh
-            #sed -E -i 's|TOOL_ARGS=\(\)|TOOL_ARGS=();unset LLVM;unset LLVM_IAS;|g' build/_setup_env.sh
-            ##sed -E -i '/ldflags\+.+fuse-ld.+/d' build/_setup_env.sh
-            #sed -E -i '/.+--rtlib=compiler-rt.*/d' build/_setup_env.sh
-            ##sed -E -i '/.*export HOST.*/d' build/_setup_env.sh
-            #sed -E -i '/.*export PATH.*/d' build/_setup_env.sh
-            #sed -E -i 's|--sysroot=[^"]+|--sysroot=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc|g' build/_setup_env.sh
-            #sed -i  's/llvm-/aarch64-none-linux-gnu-/g' build/_setup_env.sh
-            #sed -i  's/llvm-/aarch64-none-linux-gnu-/g' build/build.sh
-            #sed -E -i 's/(^[[:space:]]*)CC=clang/\1CC=aarch64-none-linux-gnu-gcc/g' build/_setup_env.sh
-            #sed -i 's/HOSTCXX=clang++/HOSTCXX=g++/g' build/_setup_env.sh
-            #sed -i 's/HOSTCC=clang/HOSTCC=gcc/g' build/_setup_env.sh
-            #sed -i 's|source "${ROOT_DIR}/build/_setup_env.sh"|source "${ROOT_DIR}/build/_setup_env.sh";HOSTCC=gcc;HOSTLD=ld.bfd;LD=aarch64-none-linux-gnu-ld;CC=aarch64-none-linux-gnu-gcc;AR=aarch64-none-linux-gnu-ar;AS=aarch64-none-linux-gnu-as;RANLIB=aarch64-none-linux-gnu-ranlib;STRIP=aarch64-none-linux-gnu-strip;NM=aarch64-none-linux-gnu-nm;OBJCOPY=aarch64-none-linux-gnu-objcopy;OBJDUMP=aarch64-none-linux-gnu-objdump;READELF=aarch64-none-linux-gnu-readelf;OBJSIZE=aarch64-none-linux-gnu-size|g' build/build.sh
-            #sed -E -i 's|(.+\-.[[:space:]]+LTO_CLANG[[:space:]]+\\.*)|\1\n-e CONFIG_CC_IS_GCC \\\n -d  CONFIG_CC_IS_CLANG \\\n -d  CONFIG_AS_IS_LLVM \\\n -e CONFIG_CFI_PERMISSIVE \\|g' build/build.sh
-            #echo "CONFIG_CFI_PERMISSIVE=y" >> ./common/arch/arm64/configs/gki_defconfig
-            #sed -i 's/ifneq ($(LLVM),)/ifeq ($(LLVM),)/g' common/Makefile
-            #sed -i  's/llvm-/$(CROSS_COMPILE)/g' common/Makefile
-            #sed -E -i 's/.*HOSTCC.+\=.+clang.*/HOSTCC	= gcc/g' common/Makefile
-            #sed -E -i 's/.*HOSTCXX.+\=.+clang\+\+.*/HOSTCXX	= g++/g' common/Makefile
-            #sed -E -i 's/^CC[[:space:]]+\=.+clang.*/CC	= $(CROSS_COMPILE)gcc/g' common/Makefile
-            #sed -E -i 's/^LD[[:space:]]+\=.+clang.*/LD	= $(CROSS_COMPILE)ld/g' common/Makefile
-            #sed -i 's|export CC_FLAGS_CFI|CC_FLAGS_CFI	:= -fsanitize=undefined;export CC_FLAGS_CFI|g' common/Makefile
-            #sed -i '/KBUILD_CFLAGS	+= $(CC_FLAGS_CFI)/d' common/Makefile
-            ##Turn off KMI strict mode
-            ##ERROR: Differences between ksymtab and symbol list detected!
-            ##Symbols missing from ksymtab:
-            ## - __cfi_slowpath_diag
-            ##- __ubsan_handle_cfi_check_fail_abort
-            ##Symbols missing from symbol list
-            #sed -E -i 's|TRIM_NONLISTED_KMI\=.+|TRIM_NONLISTED_KMI=${TRIM_NONLISTED_KMI:0}|g' common/build.config.gki.aarch64
-            #sed -E -i 's|KMI_SYMBOL_LIST_STRICT_MODE\=.+|KMI_SYMBOL_LIST_STRICT_MODE=${KMI_SYMBOL_LIST_STRICT_MODE:0}|g' common/build.config.gki.aarch64
-            #sudo apt-get --assume-yes install lld
-            #LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu- || exit 1
+              #for arm toolchain
+              #sed -i 's|LLVM|LLLL|g' build/_setup_env.sh
+              #sed -i 's|LLVM|LLLL|g' build/build.sh
+              #sed -E -i 's|TOOL_ARGS=\(\)|TOOL_ARGS=();unset LLVM;unset LLVM_IAS;|g' build/_setup_env.sh
+              ##sed -E -i '/ldflags\+.+fuse-ld.+/d' build/_setup_env.sh
+              #sed -E -i '/.+--rtlib=compiler-rt.*/d' build/_setup_env.sh
+              ##sed -E -i '/.*export HOST.*/d' build/_setup_env.sh
+              #sed -E -i '/.*export PATH.*/d' build/_setup_env.sh
+              #sed -E -i 's|--sysroot=[^"]+|--sysroot=${GITHUB_WORKSPACE}/arm-toolchain/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc|g' build/_setup_env.sh
+              #sed -i  's/llvm-/aarch64-none-linux-gnu-/g' build/_setup_env.sh
+              #sed -i  's/llvm-/aarch64-none-linux-gnu-/g' build/build.sh
+              #sed -E -i 's/(^[[:space:]]*)CC=clang/\1CC=aarch64-none-linux-gnu-gcc/g' build/_setup_env.sh
+              #sed -i 's/HOSTCXX=clang++/HOSTCXX=g++/g' build/_setup_env.sh
+              #sed -i 's/HOSTCC=clang/HOSTCC=gcc/g' build/_setup_env.sh
+              #sed -i 's|source "${ROOT_DIR}/build/_setup_env.sh"|source "${ROOT_DIR}/build/_setup_env.sh";HOSTCC=gcc;HOSTLD=ld.bfd;LD=aarch64-none-linux-gnu-ld;CC=aarch64-none-linux-gnu-gcc;AR=aarch64-none-linux-gnu-ar;AS=aarch64-none-linux-gnu-as;RANLIB=aarch64-none-linux-gnu-ranlib;STRIP=aarch64-none-linux-gnu-strip;NM=aarch64-none-linux-gnu-nm;OBJCOPY=aarch64-none-linux-gnu-objcopy;OBJDUMP=aarch64-none-linux-gnu-objdump;READELF=aarch64-none-linux-gnu-readelf;OBJSIZE=aarch64-none-linux-gnu-size|g' build/build.sh
+              #sed -E -i 's|(.+\-.[[:space:]]+LTO_CLANG[[:space:]]+\\.*)|\1\n-e CONFIG_CC_IS_GCC \\\n -d  CONFIG_CC_IS_CLANG \\\n -d  CONFIG_AS_IS_LLVM \\\n -e CONFIG_CFI_PERMISSIVE \\|g' build/build.sh
+              #echo "CONFIG_CFI_PERMISSIVE=y" >> ./common/arch/arm64/configs/gki_defconfig
+              #sed -i 's/ifneq ($(LLVM),)/ifeq ($(LLVM),)/g' common/Makefile
+              #sed -i  's/llvm-/$(CROSS_COMPILE)/g' common/Makefile
+              #sed -E -i 's/.*HOSTCC.+\=.+clang.*/HOSTCC	= gcc/g' common/Makefile
+              #sed -E -i 's/.*HOSTCXX.+\=.+clang\+\+.*/HOSTCXX	= g++/g' common/Makefile
+              #sed -E -i 's/^CC[[:space:]]+\=.+clang.*/CC	= $(CROSS_COMPILE)gcc/g' common/Makefile
+              #sed -E -i 's/^LD[[:space:]]+\=.+clang.*/LD	= $(CROSS_COMPILE)ld/g' common/Makefile
+              #sed -i 's|export CC_FLAGS_CFI|CC_FLAGS_CFI	:= -fsanitize=undefined;export CC_FLAGS_CFI|g' common/Makefile
+              #sed -i '/KBUILD_CFLAGS	+= $(CC_FLAGS_CFI)/d' common/Makefile
+              ##Turn off KMI strict mode
+              ##ERROR: Differences between ksymtab and symbol list detected!
+              ##Symbols missing from ksymtab:
+              ## - __cfi_slowpath_diag
+              ##- __ubsan_handle_cfi_check_fail_abort
+              ##Symbols missing from symbol list
+              #sed -E -i 's|TRIM_NONLISTED_KMI\=.+|TRIM_NONLISTED_KMI=${TRIM_NONLISTED_KMI:0}|g' common/build.config.gki.aarch64
+              #sed -E -i 's|KMI_SYMBOL_LIST_STRICT_MODE\=.+|KMI_SYMBOL_LIST_STRICT_MODE=${KMI_SYMBOL_LIST_STRICT_MODE:0}|g' common/build.config.gki.aarch64
+              #sudo apt-get --assume-yes install lld
+              #LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" LD=${LD} CROSS_COMPILE=aarch64-none-linux-gnu- || exit 1
             else
               tools/bazel build --disk_cache=/home/runner/.cache/bazel --config=fast --lto=thin //common:kernel_aarch64_dist || exit 1
             fi
