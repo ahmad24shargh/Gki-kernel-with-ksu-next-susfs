@@ -189,6 +189,7 @@ jobs:
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
       - name: replacing stock gki_defconfig with custom .defconfig and others
         run: |
+          [ -f  './kernel_patches/bbr/tcp_bbr.c' ] && cp ./kernel_patches/bbr/tcp_bbr.c $CONFIG/common/net/ipv4/
           repo_path="$(dirname $(find /home/runner -name '.defconfig'))"
           echo "repo_path=${repo_path}" >> $GITHUB_ENV
           #ROOT_DIR=$CONFIG
