@@ -188,13 +188,7 @@ jobs:
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
           
-      - name: Add Google BBRv3
-        run: |
-          cd ${CONFIG}/common
-          git remote add google-bbr https://github.com/google/bbr.git
-          git fetch google-bbr
-          git checkout google-bbr/v3   
-          
+      
       - name: replacing stock gki_defconfig with custom .defconfig and others
         run: |
           repo_path="$(dirname $(find /home/runner -name '.defconfig'))"
@@ -383,27 +377,15 @@ jobs:
         run: |
           cd "$CONFIG/common"
           # Add bbrv3 config setting
-          #cp ../../kernel_patches/bbr/tcp_bbr.c ./net/ipv4/
+          cp ../../kernel_patches/bbr/tcp_bbr.c ./net/ipv4/
 
           cd ..
-          echo CONFIG_TCP_CONG_ADVANCED=y >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_BIC=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_CUBIC=m >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_WESTWOOD=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_HTCP=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_HSTCP=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_HYBLA=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_VEGAS=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_NV=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_SCALABLE=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_LP=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_VENO=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_YEAH=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_ILLINOIS=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_DCTCP=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_CDG=n  >> ./common/arch/arm64/configs/gki_defconfig
-          echo CONFIG_TCP_CONG_BBR=y >> ./common/arch/arm64/configs/gki_defconfig
-          echo 'CONFIG_DEFAULT_TCP_CONG="bbr"' >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NET_SCH_FQ=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TCP_CONG_BIC=n" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TCP_CONG_WESTWOOD=n" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TCP_CONG_HTCP=n" >> ./common/arch/arm64/configs/gki_defconfig 
 
           
       - name: Config Kernel Name
