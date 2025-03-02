@@ -378,8 +378,10 @@ jobs:
           cp ../../kernel_patches/bbr/tcp_bbr.c ./net/ipv4/
 
           cd ..
-          #echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig 
           echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_DEFAULT_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "CONFIG_DEFAULT_TCP_CONG="bbr" >> ./common/arch/arm64/configs/gki_defconfig 
           echo "CONFIG_NET_SCH_FQ=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           
