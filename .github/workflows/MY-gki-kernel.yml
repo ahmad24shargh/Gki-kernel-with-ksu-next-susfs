@@ -456,7 +456,7 @@ jobs:
               sed -E -i 's|(^[[:space:]]+)build_[^[:space:]]+_dlkm.*|\1echo "dlkm image creation ignored"|g' build/build.sh
               #for ndk
               mkdir -p ./out/${CONFIG}/common && cp ./common/arch/arm64/configs/gki_defconfig ./out/${CONFIG}/common/
-              LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" SKIP_EXT_MODULES SKIP_CP_KERNEL_HDR SKIP_VENDOR_BOOT SKIP_MRPROPER || exit 1
+              LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" SKIP_EXT_MODULES=1 SKIP_CP_KERNEL_HDR=1 SKIP_VENDOR_BOOT=1 SKIP_MRPROPER=1 || exit 1
             
 
               #for arm toolchain
