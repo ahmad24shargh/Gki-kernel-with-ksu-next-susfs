@@ -187,8 +187,15 @@ jobs:
           # Sync repo and apply patches
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
+          
       - name: replacing stock gki_defconfig with custom .defconfig and others
         run: |
+          # Add Google BBRv3
+          cd $CONFIG/common
+          git remote add google-bbr https://github.com/google/bbr.git
+          git fetch google-bbr
+          git checkout google-bbr/v3
+          
           repo_path="$(dirname $(find /home/runner -name '.defconfig'))"
           echo "repo_path=${repo_path}" >> $GITHUB_ENV
           #ROOT_DIR=$CONFIG
@@ -423,7 +430,7 @@ jobs:
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 30
-          max_attempts: 3
+          max_attempts: 1
           command: |
             set -e
             set -x
