@@ -378,11 +378,24 @@ jobs:
           cp ../../kernel_patches/bbr/tcp_bbr.c ./net/ipv4/
 
           cd ..
-          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig 
-          echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_DEFAULT_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig 
-          echo "CONFIG_DEFAULT_TCP_CONG="bbr" >> ./common/arch/arm64/configs/gki_defconfig 
-          echo "CONFIG_NET_SCH_FQ=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_ADVANCED=y >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_BIC=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_CUBIC=m >> ./common/arch/arm64/configs/gki_defconfig"
+          echo CONFIG_TCP_CONG_WESTWOOD=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_HTCP=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_HSTCP=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_HYBLA=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_VEGAS=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_NV=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_SCALABLE=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_LP=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_VENO=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_YEAH=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_ILLINOIS=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_DCTCP=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_CDG=n  >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_TCP_CONG_BBR=y >> ./common/arch/arm64/configs/gki_defconfig
+          echo CONFIG_DEFAULT_TCP_CONG="bbr" >> ./common/arch/arm64/configs/gki_defconfig
 
           
       - name: Config Kernel Name
