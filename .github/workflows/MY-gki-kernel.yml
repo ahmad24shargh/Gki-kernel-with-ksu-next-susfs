@@ -188,14 +188,15 @@ jobs:
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
           
-      - name: replacing stock gki_defconfig with custom .defconfig and others
+      - name: Add Google BBRv3
+        working-directory: ./${CONFIG}/common
         run: |
-          # Add Google BBRv3
-          cd $CONFIG/common
           git remote add google-bbr https://github.com/google/bbr.git
           git fetch google-bbr
-          git checkout google-bbr/v3
+          git checkout google-bbr/v3   
           
+      - name: replacing stock gki_defconfig with custom .defconfig and others
+        run: |
           repo_path="$(dirname $(find /home/runner -name '.defconfig'))"
           echo "repo_path=${repo_path}" >> $GITHUB_ENV
           #ROOT_DIR=$CONFIG
