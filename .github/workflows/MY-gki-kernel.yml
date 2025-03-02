@@ -455,7 +455,7 @@ jobs:
               sudo test -d "${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/19/lib/linux/" && sudo ln -s /usr/lib/llvm-18/lib/clang/18/lib/linux/libclang_rt.builtins-x86_64.a  ${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/19/lib/linux/libclang_rt.builtins-x86_64.a
               sed -E -i 's|(^[[:space:]]+)build_[^[:space:]]+_dlkm.*|\1echo "dlkm image creation ignored"|g' build/build.sh
               #for ndk
-              cp ./common/arch/arm64/configs/gki_defconfig ./common/
+              mkdir -p ./out/${CONFIG}/common && cp ./common/arch/arm64/configs/gki_defconfig ./out/${CONFIG}/common/
               LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="${CC}" SKIP_EXT_MODULES SKIP_CP_KERNEL_HDR SKIP_VENDOR_BOOT SKIP_MRPROPER || exit 1
             
 
