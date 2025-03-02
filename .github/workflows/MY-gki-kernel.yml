@@ -189,7 +189,7 @@ jobs:
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
           
       - name: Add Google BBRv3
-        working-directory: ./${CONFIG}/common
+        working-directory: ${CONFIG}/common
         run: |
           git remote add google-bbr https://github.com/google/bbr.git
           git fetch google-bbr
