@@ -379,7 +379,8 @@ jobs:
           #  patch -p1 -F 3 < bbrv3-5.15+.patch
           #fi
           
-          # Enable BBR and Set as Default 
+          # Enable BBR and Set as Default
+          cd ..
           echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig 
           echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig 
           echo "CONFIG_DEFAULT_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig 
