@@ -296,9 +296,20 @@ jobs:
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG/common"
-          # Apply additional patch
-          cp ../../kernel_patches/new_hooks.patch ./
-          patch -p1 -F 3 < new_hooks.patch
+
+          if [ "${{ inputs.kernelsu_variant }}" == "Official" ]; then
+            echo "Applying hooks for Official KernelSU..."
+            cp ../../kernel_patches/hooks/ksu_hooks.patch ./
+            patch -p1 -F 3 < ksu_hooks.patch
+          elif [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
+            echo "Applying hooks for KernelSU-Next..."
+            cp ../../kernel_patches/next/next_hooks.patch ./
+            patch -p1 -F 3 < next_hooks.patch
+          elif [ "${{ inputs.kernelsu_variant }}" == "MKSU" ]; then
+            echo "Applying hooks for MKSU..."
+            cp ../../kernel_patches/hooks/ksu_hooks.patch ./
+            patch -p1 -F 3 < ksu_hooks.patch
+          fi
           
       - name: Apply Hide Stuff Patches
         run: |
@@ -354,27 +365,65 @@ jobs:
 
           #MY CHANGES
       - name: Add BBR3 net tcp configs
+        #if: ${{ inputs.kernel_version == '5.10' || inputs.kernel_version == '5.15' || inputs.kernel_version == '6.1' }}
         run: |
           cd "$CONFIG/common"
           # Add bbrv3 config setting
           cp ../../kernel_patches/bbr/tcp_bbr.c ./net/ipv4/
           
-          if [[ "${{ inputs.kernel_version }}" == "5.10" ]]; then
-            cp ../../kernel_patches/bbr/bbrv3-5.10.patch ./
-            patch -p1 -F 3 < bbrv3-5.10.patch
-          else
-            cp ../../kernel_patches/bbr/bbrv3-5.15+.patch ./
-            patch -p1 -F 3 < bbrv3-5.15+.patch
-          fi
+          #if [[ "${{ inputs.kernel_version }}" == "5.10" ]]; then
+          #  cp ../../kernel_patches/bbr/bbrv3-5.10.patch ./
+          #  patch -p1 -F 3 < bbrv3-5.10.patch
+          #else
+          #  cp ../../kernel_patches/bbr/bbrv3-5.15+.patch ./
+          #  patch -p1 -F 3 < bbrv3-5.15+.patch
+          #fi
           
-          echo "CONFIG_TCP_CONG_BBR=y" >> ./arch/arm64/configs/gki_defconfig
-          #echo "CONFIG_TCP_CONG_BBR3=y" >> ./arch/arm64/configs/gki_defconfig
-          echo "CONFIG_NET_SCH_FQ=y" >> ./arch/arm64/configs/gki_defconfig
-          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./arch/arm64/configs/gki_defconfig
-          echo "CONFIG_DEFAULT_BBR=y" >> ./arch/arm64/configs/gki_defconfig
-          #echo "CONFIG_DEFAULT_BBR3=y" >> ./arch/arm64/configs/gki_defconfig
-          echo "CONFIG_DEFAULT_TCP_CONG="bbr" >> ./arch/arm64/configs/gki_defconfig
-          #echo "CONFIG_DEFAULT_TCP_CONG="bbr3" >> ./arch/arm64/configs/gki_defconfig
+          # Enable BBR and Set as Default 
+          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "CONFIG_DEFAULT_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo 'CONFIG_DEFAULT_TCP_CONG="bbr"' >> ./common/arch/arm64/configs/gki_defconfig 
+ 
+          # Optional: Keep Reno/Cubic as alternatives 
+          echo "CONFIG_TCP_CONG_CUBIC=y" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "CONFIG_TCP_CONG_RENO=y" >> ./common/arch/arm64/configs/gki_defconfig 
+ 
+          # Disable Unnecessary TCP Congestion Algorithms 
+          echo "# CONFIG_TCP_CONG_BIC is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_WESTWOOD is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_HTCP is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_HSTCP is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_HYBLA is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_VEGAS is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_NV is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_SCALABLE is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_LP is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_VENO is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_YEAH is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_ILLINOIS is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_DCTCP is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_TCP_CONG_CDG is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+ 
+          # Disable Other Default Congestion Controls 
+          echo "# CONFIG_DEFAULT_BIC is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_DEFAULT_HTCP is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_DEFAULT_WESTWOOD is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_DEFAULT_RENO is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+ 
+          # Enable FQ-CoDel for Queue Management 
+          echo "CONFIG_NET_SCH_FQ_CODEL=y" >> ./common/arch/arm64/configs/gki_defconfig 
+ 
+          # Disable Other Queuing Disciplines 
+          echo "# CONFIG_NET_SCH_NETEM is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_NET_SCH_CBS is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_NET_SCH_DEFAULT is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_NET_SCH_HTB is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_NET_SCH_HFSC is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_NET_SCH_PRIO is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_NET_SCH_RED is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_NET_SCH_SFQ is not set" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "# CONFIG_NET_SCH_TBF is not set" >> ./common/arch/arm64/configs/gki_defconfig
         
           
           
