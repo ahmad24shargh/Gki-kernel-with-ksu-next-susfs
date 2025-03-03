@@ -188,6 +188,19 @@ jobs:
           $REPO --version
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
           
+      - name: Copy file
+        run: |
+          cp -r $CONFIG source-clean-$CONFIG
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-clean-${{ env.CONFIG }}
+          path: source-clean-${{ env.CONFIG }}
+
+      - name: Remove file
+        run: |
+          rm -rf source-clean-$CONFIG 
       
       - name: replacing stock gki_defconfig with custom .defconfig and others
         run: |
@@ -372,15 +385,15 @@ jobs:
       
 
           #MY CHANGES
-      - name: Add BBR3 net tcp configs
-        if: ${{ inputs.kernel_version != '6.6' }}
+      - name: Add BBR net tcp configs
+        #if: ${{ inputs.kernel_version != '6.6' }}
         run: |
           cd "$CONFIG/common"
           # Add bbrv3 config setting
-          cp ../../kernel_patches/bbr/tcp_bbr.c ./net/ipv4/
+          #cp ../../kernel_patches/bbr/tcp_bbr.c ./net/ipv4/
 
           cd ..
-          #echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig 
           echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig
           #echo "CONFIG_NET_SCH_FQ=y" >> ./common/arch/arm64/configs/gki_defconfig
           #echo "CONFIG_TCP_CONG_BIC=n" >> ./common/arch/arm64/configs/gki_defconfig
@@ -409,6 +422,20 @@ jobs:
             #tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
           fi
 
+      - name: Copy file
+        run: |
+          cp -r $CONFIG source-patched-$CONFIG
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-patched-${{ env.CONFIG }}
+          path: source-patched-${{ env.CONFIG }}
+
+      - name: Remove file
+        run: |
+          rm -rf source-patched-$CONFIG
+          
       - name: Build with retry
         uses: nick-fields/retry@v3
         with:
