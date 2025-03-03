@@ -385,7 +385,7 @@ jobs:
           echo "CONFIG_TCP_CONG_BIC=n" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_TCP_CONG_WESTWOOD=n" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_TCP_CONG_HTCP=n" >> ./common/arch/arm64/configs/gki_defconfig 
-          echo 'CONFIG_DEFAULT_TCP_CONG="bbr"' >> ./common/arch/arm64/configs/gki_defconfig
+          #echo 'CONFIG_DEFAULT_TCP_CONG="bbr"' >> ./common/arch/arm64/configs/gki_defconfig
 
           
       - name: Config Kernel Name
@@ -423,9 +423,10 @@ jobs:
             export CPATH=$GITHUB_WORKSPACE/kernel-build-tools/linux-x86/include
             export API=$(echo ${{ inputs.android_version }} | sed 's/android1/3/g')
             My_Args=' -march=armv8-a+crc+crypto -mtune=cortex-a73 '
-            export KBUILD_BUILD_TIMESTAMP=`date`
+            export KBUILD_BUILD_TIMESTAMP=$(date)
             export KBUILD_BUILD_USER='ahmad'
-            export KBUILD_BUILD_HOST='forozan.com'
+            export KBUILD_BUILD_HOST='Forozan'
+            sed -i 's|LC_ALL=C|LC_ALL=C;KBUILD_BUILD_TIMESTAMP="'"${KBUILD_BUILD_TIMESTAMP}"'";KBUILD_BUILD_USER="'"${KBUILD_BUILD_USER}"'";KBUILD_BUILD_HOST="'"${KBUILD_BUILD_HOST}"'";|g' ./common/scripts/mkcompile_h
 
             #for ndk
             export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
