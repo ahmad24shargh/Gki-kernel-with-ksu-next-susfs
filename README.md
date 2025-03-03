@@ -1,4 +1,4 @@
-I only compile the android13-5.15 kernel for compatibility with xiaomi redmi note 12 4g (Under development and maintenance)
+I only compile the android13-5.15 kernel for compatibility with xiaomi redmi note 12 4g
 
 ..................
 
