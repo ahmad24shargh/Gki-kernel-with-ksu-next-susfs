@@ -254,6 +254,15 @@ jobs:
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
+
+          # MY CHANGES
+          if [ -d ./LinuxPU ];then
+            ln -s ./LinuxPU ./KernelSU-Next
+            for files in $(grep -R ../susfs4ksu -e 'ksud' 2>/dev/null | grep -v 'https' | grep -v 'rustix::' | cut -d':' -f1);do sed -i 's|ksud|lpud|g' $files;done
+            for files in $(grep -R ../kernel_patches -e 'ksud' 2>/dev/null | grep -v 'https' | grep -v 'rustix::' | cut -d':' -f1);do sed -i 's|ksud|lpud|g' $files;done
+            for files in $(grep -R ../susfs4ksu -e 'ksu' 2>/dev/null | grep -v 'https' | grep -v 'rustix::' | cut -d':' -f1);do sed -i 's|ksu|lpu|g' $files;done
+            for files in $(grep -R ../kernel_patches -e 'ksu' 2>/dev/null | grep -v 'https' | grep -v 'rustix::' | cut -d':' -f1);do sed -i 's|ksu|lpu|g' $files;done
+          fi
           
           echo "Applying SUSFS patches..."
           
@@ -269,7 +278,6 @@ jobs:
             patch -p1 --forward < 10_enable_susfs_for_ksu.patch
           elif [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
             echo "Applying SUSFS patches for KernelSU-Next..."
-            [ -d ./LinuxPU ] && ln -s ./LinuxPU ./KernelSU-Next
             cd ./KernelSU-Next
             cp ../../kernel_patches/next/0001-kernel-patch-susfs-v1.5.5-to-KernelSU-Next-v1.0.5.patch ./
             patch -p1 --forward < 0001-kernel-patch-susfs-v1.5.5-to-KernelSU-Next-v1.0.5.patch || true
@@ -430,8 +438,6 @@ jobs:
             sed -i 's|LC_ALL=C|LC_ALL=C;KBUILD_BUILD_TIMESTAMP="'"${KBUILD_BUILD_TIMESTAMP}"'";KBUILD_BUILD_USER="'"${KBUILD_BUILD_USER}"'";KBUILD_BUILD_HOST="'"${KBUILD_BUILD_HOST}"'";|g' ./common/scripts/mkcompile_h
             find . -type d -name 'linuxpu'
             if [ $? -eq 0 ];then
-              find . -type f -name 'ksu.c'
-              find . -type f -name 'selinux.h'
               sed -i 's|KernelSU|LinuxPU|g' $(find . -type f -name 'ksu.c')
               sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksu.c')
               sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksud.c')
