@@ -438,11 +438,18 @@ jobs:
             sed -i 's|LC_ALL=C|LC_ALL=C;KBUILD_BUILD_TIMESTAMP="'"${KBUILD_BUILD_TIMESTAMP}"'";KBUILD_BUILD_USER="'"${KBUILD_BUILD_USER}"'";KBUILD_BUILD_HOST="'"${KBUILD_BUILD_HOST}"'";|g' ./common/scripts/mkcompile_h
             find . -type d -name 'linuxpu'
             if [ $? -eq 0 ];then
-              sed -i 's|KernelSU|LinuxPU|g' $(find . -type f -name 'ksu.c')
-              sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksu.c')
-              sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksud.c')
-              sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'rules.c')
-              sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'selinux.h')
+              #sed -i 's|KernelSU|LinuxPU|g' $(find . -type f -name 'ksu.c')
+              #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksu.c')
+              #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksud.c')
+              #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'rules.c')
+              #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'selinux.h')
+              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KernelSU.Next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KernelSU.Next|LinuxPU|g' $files;done
+              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'kernelsu.next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|kernelsu.next|linuxpu|g' $files;done
+              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KSU.NEXT' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KSU.NEXT|LinuxPU|g' $files;done
+              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'ksunext' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|ksunext|linuxpu|g' $files;done
+              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KERNELSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KERNELSU|LINUXPU|g' $files;done
+              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KernelSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KernelSU|linuxPU|g' $files;done
+              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'kernelsu' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|kernelsu|linuxpu|g' $files;done
             fi
 
             #for ndk
