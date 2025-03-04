@@ -582,7 +582,8 @@ jobs:
           #rm ./Image.gz
 
       - name: Run Boot Image ${{ inputs.android_version }} Build Script
-        if: ${{ inputs.android_version == 'android12' }}
+        #if: ${{ inputs.android_version == 'android12' }}
+        if: false
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd bootimgs
