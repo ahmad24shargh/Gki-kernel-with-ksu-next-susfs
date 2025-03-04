@@ -428,6 +428,16 @@ jobs:
             export KBUILD_BUILD_USER='ahmad'
             export KBUILD_BUILD_HOST='Forozan'
             sed -i 's|LC_ALL=C|LC_ALL=C;KBUILD_BUILD_TIMESTAMP="'"${KBUILD_BUILD_TIMESTAMP}"'";KBUILD_BUILD_USER="'"${KBUILD_BUILD_USER}"'";KBUILD_BUILD_HOST="'"${KBUILD_BUILD_HOST}"'";|g' ./common/scripts/mkcompile_h
+            find . -type d -name 'linuxpu'
+            if [ $? -eq 0 ];then
+              find . -type f -name 'ksu.c'
+              find . -type f -name 'selinux.h'
+              sed -i 's|KernelSU|LinuxPU|g' $(find . -type f -name 'ksu.c')
+              sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksu.c')
+              sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksud.c')
+              sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'rules.c')
+              sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'selinux.h')
+            fi
 
             #for ndk
             export TOOLCHAIN=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64
