@@ -459,9 +459,9 @@ jobs:
               for files in $(grep -R ./LinuxPU -e 'KSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -E -i 's#KSU(D?)(_|"|=)#LPU\1\2#g' $files;done
               for files in $(grep -R ./LinuxPU -e 'Ksu' 2>/dev/null | cut -d':' -f1);do sed -i 's|Ksu|Lpu|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KSURC' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's#KSURC#LPURC#g' $files;done
-              for files in $(grep -R ./common/kernel -e 'KSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KSU|LPU|g' $files;done
-              for files in $(grep -R ./common/fs -e 'KSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KSU|LPU|g' $files;done
-              for files in $(grep -R ./common/include -e 'KSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KSU|LPU|g' $files;done
+              #for files in $(grep -R ./common/kernel -e 'KSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KSU|LPU|g' $files;done
+              #for files in $(grep -R ./common/fs -e 'KSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KSU|LPU|g' $files;done
+              #for files in $(grep -R ./common/include -e 'KSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KSU|LPU|g' $files;done
               for files in $(grep -R ./common/kernel -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
               for files in $(grep -R ./common/fs -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
               for files in $(grep -R ./common/include -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
