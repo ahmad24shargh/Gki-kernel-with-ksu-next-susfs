@@ -438,8 +438,8 @@ jobs:
             export KBUILD_BUILD_HOST='Forozan'
             sed -i 's|LC_ALL=C|LC_ALL=C;KBUILD_BUILD_TIMESTAMP="'"${KBUILD_BUILD_TIMESTAMP}"'";KBUILD_BUILD_USER="'"${KBUILD_BUILD_USER}"'";KBUILD_BUILD_HOST="'"${KBUILD_BUILD_HOST}"'";|g' ./common/scripts/mkcompile_h
             if test -d ./LinuxPU ;then
-              set +e
-              set +x
+              #set +e
+              #set +x
               #sed -i 's|KernelSU|LinuxPU|g' $(find . -type f -name 'ksu.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksu.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksud.c')
@@ -467,8 +467,8 @@ jobs:
               for files in $(grep -R ./common/include -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
               for files in $(grep -R ./common/kernel -e 'KERNEL_SU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KERNEL_SU|LINUXPU|g' $files;done
               for files in $(grep -R ./common/kernel -e 'KernelSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KernelSU|LinuxPU|g' $files;done
-              set -e
-              set -x
+              #set -e
+              #set -x
             else
               exit 1
             fi
