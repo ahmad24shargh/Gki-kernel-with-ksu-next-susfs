@@ -443,6 +443,7 @@ jobs:
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksud.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'rules.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'selinux.h')
+              sed -E -i 's#([[:space:]]|_|")KSU(_|"|=)#\1LPU\2#g' ./common/arch/arm64/configs/gki_defconfig
               for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KernelSU.Next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KernelSU.Next|LinuxPU|g' $files;done
               for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'kernelsu.next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|kernelsu.next|linuxpu|g' $files;done
               for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KSU.NEXT' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KSU.NEXT|LinuxPU|g' $files;done
@@ -450,6 +451,8 @@ jobs:
               for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KERNELSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KERNELSU|LINUXPU|g' $files;done
               for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KernelSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KernelSU|linuxPU|g' $files;done
               for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'kernelsu' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|kernelsu|linuxpu|g' $files;done
+              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KSURC' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KSURC|LPURC|g' $files;done
+              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -E -i 's#KSU(D?)(_|"|=)#LPU\1\2#g' $files;done
             fi
 
             #for ndk
