@@ -445,7 +445,8 @@ jobs:
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksud.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'rules.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'selinux.h')
-              sed -E -i 's/_KSU(_|=)/_LPU\1/g' ./common/arch/arm64/configs/gki_defconfig
+              sed  -i 's/_KSU=/_LPU=/g' ./common/arch/arm64/configs/gki_defconfig
+              sed  -i 's/_KSU_/_LPU_/g' ./common/arch/arm64/configs/gki_defconfig
               for files in $(grep -R ./LinuxPU -e 'KernelSU.Next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KernelSU.Next|LinuxPU|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'kernelsu.next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|kernelsu.next|linuxpu|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KSU.NEXT' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KSU.NEXT|LinuxPU|g' $files;done
