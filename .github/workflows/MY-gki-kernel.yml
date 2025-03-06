@@ -254,8 +254,10 @@ jobs:
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
+          
 
           # MY CHANGES
+          set -x
           if [ -d ./LinuxPU ];then
             ln -s ./LinuxPU ./KernelSU-Next
             for files in $(grep -R ../susfs4ksu -e 'ksud' 2>/dev/null | grep -v 'https' | grep -v 'rustix::' | cut -d':' -f1);do sed -i 's|ksud|lpud|g' $files;done
@@ -263,6 +265,7 @@ jobs:
             for files in $(grep -R ../susfs4ksu -e 'ksu' 2>/dev/null | grep -v 'https' | grep -v 'rustix::' | cut -d':' -f1);do sed -i 's|ksu|lpu|g' $files;done
             for files in $(grep -R ../kernel_patches -e 'ksu' 2>/dev/null | grep -v 'https' | grep -v 'rustix::' | cut -d':' -f1);do sed -i 's|ksu|lpu|g' $files;done
           fi
+          set +x
           
           echo "Applying SUSFS patches..."
           
@@ -436,23 +439,25 @@ jobs:
             export KBUILD_BUILD_USER='ahmad'
             export KBUILD_BUILD_HOST='Forozan'
             sed -i 's|LC_ALL=C|LC_ALL=C;KBUILD_BUILD_TIMESTAMP="'"${KBUILD_BUILD_TIMESTAMP}"'";KBUILD_BUILD_USER="'"${KBUILD_BUILD_USER}"'";KBUILD_BUILD_HOST="'"${KBUILD_BUILD_HOST}"'";|g' ./common/scripts/mkcompile_h
-            find . -type d -name 'linuxpu'
-            if [ $? -eq 0 ];then
+            if [ -d ./LinuxPU ];then
               #sed -i 's|KernelSU|LinuxPU|g' $(find . -type f -name 'ksu.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksu.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksud.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'rules.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'selinux.h')
-              sed -E -i 's#([[:space:]]|_|")KSU(_|"|=)#\1LPU\2#g' ./common/arch/arm64/configs/gki_defconfig
-              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KernelSU.Next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KernelSU.Next|LinuxPU|g' $files;done
-              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'kernelsu.next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|kernelsu.next|linuxpu|g' $files;done
-              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KSU.NEXT' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KSU.NEXT|LinuxPU|g' $files;done
-              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'ksunext' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|ksunext|linuxpu|g' $files;done
-              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KERNELSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KERNELSU|LINUXPU|g' $files;done
-              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KernelSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KernelSU|linuxPU|g' $files;done
-              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'kernelsu' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|kernelsu|linuxpu|g' $files;done
-              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KSURC' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KSURC|LPURC|g' $files;done
-              for files in $(grep -R /home/runner/work/LinuxPU/LinuxPU -e 'KSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -E -i 's#KSU(D?)(_|"|=)#LPU\1\2#g' $files;done
+              sed -E -i 's/_KSU(_|=)/LPU\1/g' ./common/arch/arm64/configs/gki_defconfig
+              cat ./common/arch/arm64/configs/gki_defconfig | grep 'LPU'
+              for files in $(grep -R ./LinuxPU -e 'KernelSU.Next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KernelSU.Next|LinuxPU|g' $files;done
+              for files in $(grep -R ./LinuxPU -e 'kernelsu.next' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|kernelsu.next|linuxpu|g' $files;done
+              for files in $(grep -R ./LinuxPU -e 'KSU.NEXT' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KSU.NEXT|LinuxPU|g' $files;done
+              for files in $(grep -R ./LinuxPU -e 'ksunext' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|ksunext|linuxpu|g' $files;done
+              for files in $(grep -R ./LinuxPU -e 'KERNELSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KERNELSU|LINUXPU|g' $files;done
+              for files in $(grep -R ./LinuxPU -e 'KernelSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KernelSU|linuxPU|g' $files;done
+              for files in $(grep -R ./LinuxPU -e 'kernelsu' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|kernelsu|linuxpu|g' $files;done
+              for files in $(grep -R ./LinuxPU -e 'KSURC' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KSURC|LPURC|g' $files;done
+              for files in $(grep -R ./LinuxPU -e 'KSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -E -i 's#KSU(D?)(_|"|=)#LPU\1\2#g' $files;done
+            else
+              exit 1
             fi
 
             #for ndk
