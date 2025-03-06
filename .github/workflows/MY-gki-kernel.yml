@@ -437,7 +437,7 @@ jobs:
             export KBUILD_BUILD_USER='ahmad'
             export KBUILD_BUILD_HOST='Forozan'
             sed -i 's|LC_ALL=C|LC_ALL=C;KBUILD_BUILD_TIMESTAMP="'"${KBUILD_BUILD_TIMESTAMP}"'";KBUILD_BUILD_USER="'"${KBUILD_BUILD_USER}"'";KBUILD_BUILD_HOST="'"${KBUILD_BUILD_HOST}"'";|g' ./common/scripts/mkcompile_h
-            if [ -d ./LinuxPU ];then
+            if test -d ./LinuxPU ;then
               set +e
               set +x
               #sed -i 's|KernelSU|LinuxPU|g' $(find . -type f -name 'ksu.c')
@@ -458,9 +458,6 @@ jobs:
               for files in $(grep -R ./LinuxPU -e 'KSURC' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KSURC|LPURC|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -E -i 's#KSU(D?)(_|"|=)#LPU\1\2#g' $files;done
               for files in $(grep -R ./LinuxPU -e 'Ksu' 2>/dev/null | cut -d':' -f1);do sed -i 's|Ksu|Lpu|g' $files;done
-              #for files in $(grep -R ./LinuxPU -e '"su"' 2>/dev/null | cut -d':' -f1);do sed -i 's|"su"|"KSU=1 su"|g' $files;done
-              #for files in $(grep -R ./LinuxPU -e '"sh"' 2>/dev/null | cut -d':' -f1);do sed -i 's|"sh"|"KSU=1 sh"|g' $files;done
-              #for files in $(grep -R ./LinuxPU -e '"/system/bin/su"' 2>/dev/null | cut -d':' -f1);do sed -i 's|"/system/bin/su"|"KSU=1 /system/bin/su"|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KSURC' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's#KSURC#LPURC#g' $files;done
               for files in $(grep -R ./common/kernel -e 'KSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KSU|LPU|g' $files;done
               for files in $(grep -R ./common/fs -e 'KSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KSU|LPU|g' $files;done
@@ -469,7 +466,6 @@ jobs:
               for files in $(grep -R ./common/fs -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
               for files in $(grep -R ./common/include -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
               for files in $(grep -R ./common/kernel -e 'KERNEL_SU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KERNEL_SU|LINUXPU|g' $files;done
-              #for files in $(grep -R ./common/kernel -e '"su"' 2>/dev/null  | cut -d':' -f1);do sed -i 's|"su"|"KSU=1 su"|g' $files;done
               for files in $(grep -R ./common/kernel -e 'KernelSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KernelSU|LinuxPU|g' $files;done
               set -e
               set -x
