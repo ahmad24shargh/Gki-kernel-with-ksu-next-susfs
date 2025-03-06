@@ -455,6 +455,12 @@ jobs:
               for files in $(grep -R ./LinuxPU -e 'kernelsu' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|kernelsu|linuxpu|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KSURC' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KSURC|LPURC|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -E -i 's#KSU(D?)(_|"|=)#LPU\1\2#g' $files;done
+              for files in $(grep -R ./common/kernel -e '_KSU_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_KSU_|_LPU_|g' $files;done
+              for files in $(grep -R ./common/fs -e '_KSU_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_KSU_|_LPU_|g' $files;done
+              for files in $(grep -R ./common/include -e '_KSU_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_KSU_|_LPU_|g' $files;done
+              for files in $(grep -R ./common/kernel -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
+              for files in $(grep -R ./common/fs -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
+              for files in $(grep -R ./common/include -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
               set -e
               set -x
             else
