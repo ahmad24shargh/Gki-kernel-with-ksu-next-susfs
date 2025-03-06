@@ -452,7 +452,7 @@ jobs:
               for files in $(grep -R ./LinuxPU -e 'KSU.NEXT' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -Ei 's|KSU.NEXT|LinuxPU|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'ksunext' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|ksunext|linuxpu|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KERNELSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KERNELSU|LINUXPU|g' $files;done
-              for files in $(grep -R ./LinuxPU -e 'KERNEL_SU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KERNEL_SU|LINUXPU|g' $files;done
+              #for files in $(grep -R ./LinuxPU -e 'KERNEL_SU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KERNEL_SU|LINUXPU|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KernelSU' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KernelSU|linuxPU|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'kernelsu' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|kernelsu|linuxpu|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KSURC' 2>/dev/null | grep -v 'https' | cut -d':' -f1);do sed -i 's|KSURC|LPURC|g' $files;done
@@ -465,7 +465,7 @@ jobs:
               for files in $(grep -R ./common/kernel -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
               for files in $(grep -R ./common/fs -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
               for files in $(grep -R ./common/include -e '_ksu_' 2>/dev/null  | cut -d':' -f1);do sed -i 's|_ksu_|_lpu_|g' $files;done
-              for files in $(grep -R ./common/kernel -e 'KERNEL_SU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KERNEL_SU|LINUXPU|g' $files;done
+              #for files in $(grep -R ./common/kernel -e 'KERNEL_SU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KERNEL_SU|LINUXPU|g' $files;done
               for files in $(grep -R ./common/kernel -e 'KernelSU' 2>/dev/null  | cut -d':' -f1);do sed -i 's|KernelSU|LinuxPU|g' $files;done
               #set -e
               #set -x
