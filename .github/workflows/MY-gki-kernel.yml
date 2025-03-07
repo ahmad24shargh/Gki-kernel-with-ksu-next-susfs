@@ -445,8 +445,8 @@ jobs:
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'ksud.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'rules.c')
               #sed -i 's|kernelsu|linuxpu|g' $(find . -type f -name 'selinux.h')
-              sed  -i 's/_KSU=/_LPU=/g' ./common/arch/arm64/configs/gki_defconfig
               sed  -i 's/_KSU_/_LPU_/g' ./common/arch/arm64/configs/gki_defconfig
+              sed  -i 's/CONFIG_KSU/CONFIG_LPU/g' ./common/arch/arm64/configs/gki_defconfig
               for files in $(grep -R ./LinuxPU -e 'KernelSU.Next' 2>/dev/null | grep -v 'https' | cut -d':' -f1 | sort | uniq);do sed -E -i 's|KernelSU.Next|LinuxPU|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'kernelsu.next' 2>/dev/null | grep -v 'https' | cut -d':' -f1 | sort | uniq);do sed -E -i 's|kernelsu.next|linuxpu|g' $files;done
               for files in $(grep -R ./LinuxPU -e 'KSU.NEXT' 2>/dev/null | grep -v 'https' | cut -d':' -f1 | sort | uniq);do sed -E -i 's|KSU.NEXT|LinuxPU|g' $files;done
@@ -479,6 +479,15 @@ jobs:
               echo "......................"
               echo "./common/arch/arm64/configs/gki_defconfig"
               cat ./common/arch/arm64/configs/gki_defconfig
+              echo "......................"
+              echo "./common/fs/Makefile"
+              cat ./common/fs/Makefile
+              echo "......................"
+              echo "./common/kernel/Makefile"
+              cat ./common/kernel/Makefile
+              echo "......................"
+              echo "./common/kernel/Kconfig"
+              cat ./common/kernel/Kconfig
               set -e
               set -x
             else
